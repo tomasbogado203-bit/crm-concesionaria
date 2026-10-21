@@ -1,42 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { apiFetch } from '../api';
-import { Users, Car, Target, DollarSign, ArrowUpRight, TrendingUp, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import {
+  Users,
+  Car,
+  Target,
+  DollarSign,
+  ArrowUpRight,
+  TrendingUp,
+  AlertCircle,
+  BarChart3,
+  RotateCcw,
+  Sparkles,
+} from 'lucide-react';
 
 export const DashboardView = ({ onNavigate }) => {
+  const { usuario } = useAuth();
+  const [mostrarMetricas, setMostrarMetricas] = useState(false);
   const [metricas, setMetricas] = useState({
     clientes: 0,
     vehiculos: 0,
     oportunidades: 0,
     montoTotal: 0,
   });
-  const [cargando, setCargando] = useState(true);
+  const [cargando, setCargando] = useState(false);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const [clientes, vehiculos, oportunidades] = await Promise.all([
-          apiFetch('/clientes').catch(() => []),
-          apiFetch('/vehiculos').catch(() => []),
-          apiFetch('/oportunidades').catch(() => []),
-        ]);
+  // Carga únicamente a demanda cuando el usuario lo solicita explícitamente
+  const cargarDatos = async () => {
+    setCargando(true);
+    setMostrarMetricas(true);
+    try {
+      const [clientes, vehiculos, oportunidades] = await Promise.all([
+        apiFetch('/clientes').catch(() => []),
+        apiFetch('/vehiculos').catch(() => []),
+        apiFetch('/oportunidades').catch(() => []),
+      ]);
 
-        const monto = oportunidades.reduce((acc, curr) => acc + Number(curr.montoEstimado || 0), 0);
+      const monto = oportunidades.reduce((acc, curr) => acc + Number(curr.montoEstimado || 0), 0);
 
-        setMetricas({
-          clientes: clientes.length,
-          vehiculos: vehiculos.filter(v => v.estado === 'DISPONIBLE').length,
-          oportunidades: oportunidades.length,
-          montoTotal: monto,
-        });
-      } catch (err) {
-        console.error('Error cargando métricas:', err);
-      } finally {
-        setCargando(false);
-      }
-    };
-
-    cargarDatos();
-  }, []);
+      setMetricas({
+        clientes: clientes.length,
+        vehiculos: vehiculos.filter((v) => v.estado === 'DISPONIBLE').length,
+        oportunidades: oportunidades.length,
+        montoTotal: monto,
+      });
+    } catch (err) {
+      console.error('Error cargando métricas:', err);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   const cards = [
     {
@@ -69,6 +82,53 @@ export const DashboardView = ({ onNavigate }) => {
     },
   ];
 
+  // Estado 1: Dashboard vacío al inicio para ahorrar 100% de la carga del servidor
+  if (!mostrarMetricas) {
+    return (
+      <div className="min-h-[85vh] flex flex-col items-center justify-center p-8 text-center select-none">
+        <div className="max-w-md w-full bg-slate-900/60 border border-slate-800/80 rounded-3xl p-8 shadow-2xl backdrop-blur-sm space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center mx-auto text-white shadow-xl shadow-blue-500/20">
+            <Car className="w-8 h-8" />
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-white tracking-tight">AUTO CRM</h2>
+            <p className="text-xs text-slate-400 mt-1">Concesionaria Oficial · Sistema Comercial</p>
+          </div>
+
+          <div className="p-4 bg-slate-950/70 border border-slate-800/80 rounded-2xl text-left space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-slate-300 font-semibold">
+                Hola, {usuario?.nombreCompleto || 'Usuario'} 👋
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 uppercase">
+                {usuario?.perfiles?.[0] || 'Vendedor'}
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Panel de inicio disponible. Seleccioná cualquiera de tus módulos autorizados en el <strong>menú lateral izquierdo</strong> para comenzar.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-slate-800/80 flex flex-col gap-2.5">
+            <button
+              onClick={cargarDatos}
+              disabled={cargando}
+              className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 border border-slate-700 shadow-sm cursor-pointer"
+            >
+              <BarChart3 className="w-4 h-4 text-blue-400" />
+              <span>{cargando ? 'Consultando datos...' : 'Cargar Métricas y KPIs en Vivo'}</span>
+            </button>
+            <span className="text-[10px] text-slate-500">
+              Modo ahorro de recursos activo: no se realizan consultas a la base de datos hasta que las solicites.
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Estado 2: Dashboard con métricas cargadas a demanda
   return (
     <div className="p-8 space-y-8">
       {/* Top Banner */}
@@ -78,10 +138,19 @@ export const DashboardView = ({ onNavigate }) => {
             <TrendingUp className="w-4 h-4" /> Desempeño Comercial
           </span>
           <h2 className="text-xl font-bold text-white mt-1">Panel de Control de la Concesionaria</h2>
-          <p className="text-xs text-slate-400 mt-0.5">Métricas actualizadas en tiempo real desde la base de datos MySQL.</p>
+          <p className="text-xs text-slate-400 mt-0.5">Métricas actualizadas bajo demanda desde MySQL.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={cargarDatos}
+            disabled={cargando}
+            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5"
+            title="Refrescar métricas"
+          >
+            <RotateCcw className={`w-3.5 h-3.5 ${cargando ? 'animate-spin text-blue-400' : ''}`} />
+            <span>Refrescar</span>
+          </button>
           <button
             onClick={() => onNavigate('Contactos')}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/30 transition flex items-center gap-1.5"
