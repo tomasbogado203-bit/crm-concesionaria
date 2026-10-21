@@ -1,0 +1,310 @@
+@startuml Diagrama_Clases_CRM_Concesionaria
+!theme plain
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam handwritten false
+
+skinparam class {
+    BackgroundColor #F8FAFC
+    BorderColor #0F172A
+    ArrowColor #0284C7
+    FontName Arial
+    FontSize 12
+}
+
+' ==========================================================
+' ENUMS (Tipos de datos y opciones fijas)
+' ==========================================================
+package "Enumeraciones" #F1F5F9 {
+    enum TipoPersona {
+        FISICA
+        JURIDICA
+    }
+
+    enum Sexo {
+        M
+        F
+        OTRO
+        NO_APLICA
+    }
+
+    enum CondicionVehiculo {
+        CERO_KM
+        USADO
+    }
+
+    enum EstadoVehiculo {
+        DISPONIBLE
+        RESERVADO
+        VENDIDO
+    }
+
+    enum EtapaOportunidad {
+        PROSPECTO
+        TEST_DRIVE
+        NEGOCIACION
+        RESERVADO
+        GANADA
+        PERDIDA
+    }
+
+    enum TipoComprobante {
+        FACTURA_A
+        FACTURA_B
+        FACTURA_C
+        RECIBO
+    }
+
+    enum EstadoFactura {
+        EMITIDA
+        PAGADA
+        ANULADA
+    }
+
+    enum MetodoPago {
+        EFECTIVO
+        TRANSFERENCIA
+        CHEQUE
+        PRENDARIO
+        PERMUTA
+    }
+
+    enum CanalInteraccion {
+        WHATSAPP
+        LLAMADA
+        VISITA_SALON
+        EMAIL
+    }
+
+    enum EstadoTarea {
+        PENDIENTE
+        COMPLETADA
+    }
+}
+
+' ==========================================================
+' MÓDULO 1: NÚCLEO DE CONTACTOS Y USUARIOS (Party Model)
+' ==========================================================
+package "Módulo Contactos y Usuarios" #F8FAFC {
+    class Contacto {
+        - int id
+        - TipoPersona tipoPersona
+        - String apellido
+        - String nombres
+        - String razonSocial
+        - String numeroDni
+        - Date fechaNaci
+        - Sexo sexo
+        - boolean snActivo
+        - String telefono
+        - String email
+        - String direccion
+        + boolean esPersonaJuridica()
+        + String getNombreCompleto()
+        + void activar()
+        + void desactivar()
+    }
+
+    class Usuario {
+        - int id
+        - int contactoId
+        - String nombreUsuario
+        - String mail
+        - String password
+        - String sucursal
+        - boolean snActivo
+        + boolean verificarPassword(String intento)
+        + boolean tienePermiso(String codigoPrg)
+    }
+
+    class Rol {
+        - int id
+        - String descripcionRol
+        + String getDescripcion()
+    }
+
+    class ContactoRol {
+        - int contactoId
+        - int rolId
+    }
+}
+
+' ==========================================================
+' MÓDULO 2: SEGURIDAD, PERFILES Y MENÚS (RBAC Pizarra)
+' ==========================================================
+package "Módulo Seguridad y Menús" #F8FAFC {
+    class Perfil {
+        - int id
+        - String nombrePerfil
+        - String descripcion
+        + void asignarUsuario(Usuario u)
+    }
+
+    class PerfilUsuario {
+        - int usuarioId
+        - int perfilId
+    }
+
+    class Menu {
+        - int id
+        - int menuPadreId
+        - String nombreMenu
+        - int orden
+        + List<Menu> getSubmenus()
+        + List<ProgramaAccion> getProgramas()
+    }
+
+    class ProgramaAccion {
+        - int id
+        - int menuId
+        - String codigoPrg
+        - String descripcion
+        + String getCodigo()
+    }
+
+    class PerfilMenuPrg {
+        - int id
+        - int perfilId
+        - int menuId
+        - int prgId
+    }
+}
+
+' ==========================================================
+' MÓDULO 3: NEGOCIO DE LA CONCESIONARIA (Stock y Ventas)
+' ==========================================================
+package "Módulo Comercial Concesionaria" #F8FAFC {
+    class Vehiculo {
+        - int id
+        - String vin
+        - String marca
+        - String modelo
+        - String version
+        - int anio
+        - CondicionVehiculo condicion
+        - int kilometraje
+        - Decimal precioVenta
+        - Decimal costoCompra
+        - EstadoVehiculo estado
+        + void reservar()
+        + void vender()
+        + void liberar()
+    }
+
+    class Oportunidad {
+        - int id
+        - int clienteId
+        - int usuarioId
+        - int vehiculoId
+        - EtapaOportunidad etapa
+        - Decimal montoEstimado
+        - String motivoPerdida
+        + void avanzarEtapa(EtapaOportunidad nuevaEtapa)
+        + void cerrarComoGanada()
+        + void cerrarComoPerdida(String motivo)
+    }
+
+    class Factura {
+        - int id
+        - int oportunidadId
+        - int clienteId
+        - int usuarioId
+        - TipoComprobante tipoComprobante
+        - String puntoVenta
+        - String numeroComprobante
+        - String caeAfip
+        - Date fechaEmision
+        - Decimal total
+        - EstadoFactura estado
+        + void calcularTotal()
+        + void emitir()
+        + void anular()
+    }
+
+    class DetalleFactura {
+        - int id
+        - int facturaId
+        - int vehiculoId
+        - String descripcion
+        - int cantidad
+        - Decimal precioUnitario
+        - Decimal subtotal
+        + Decimal calcularSubtotal()
+    }
+
+    class PagoCobro {
+        - int id
+        - int facturaId
+        - MetodoPago metodoPago
+        - Decimal monto
+        - Date fechaPago
+        - String nroComprobante
+        + boolean estaConfirmado()
+    }
+
+    class Interaccion {
+        - int id
+        - int clienteId
+        - int usuarioId
+        - CanalInteraccion canal
+        - String resumen
+        - Date fecha
+    }
+
+    class Tarea {
+        - int id
+        - int usuarioId
+        - int clienteId
+        - String descripcion
+        - Date fechaVencimiento
+        - EstadoTarea estado
+        + void marcarCompletada()
+    }
+}
+
+' ==========================================================
+' RELACIONES Y MULTIPLICIDADES
+' ==========================================================
+
+' Núcleo Party Model: Contacto y Usuario
+Contacto "1" <.. "0..1" Usuario : "tiene credenciales (1 a 0..1)"
+
+' Relación N:M Contacto - Rol
+Contacto "1" *-- "*" ContactoRol
+Rol "1" *-- "*" ContactoRol
+
+' Relación N:M Usuario - Perfil
+Usuario "1" *-- "*" PerfilUsuario
+Perfil "1" *-- "*" PerfilUsuario
+
+' Jerarquía de Menús y Programas PRG
+Menu "0..1" *-- "*" Menu : "submenús"
+Menu "1" *-- "*" ProgramaAccion : "contiene"
+
+' Matriz de Permisos: Perfil autoriza Menú y PRG
+Perfil "1" -- "*" PerfilMenuPrg
+Menu "1" -- "*" PerfilMenuPrg
+ProgramaAccion "1" -- "*" PerfilMenuPrg
+
+' Relaciones Comerciales
+Contacto "1" --> "*" Oportunidad : "es cliente en"
+Usuario "1" --> "*" Oportunidad : "atiende"
+Vehiculo "1" --> "*" Oportunidad : "unidad de interés"
+
+' Facturación y Cobranzas
+Oportunidad "0..1" --> "1" Factura : "origina"
+Contacto "1" --> "*" Factura : "receptor fiscal"
+Usuario "1" --> "*" Factura : "emite"
+Factura "1" *-- "1..*" DetalleFactura : "renglones"
+Vehiculo "0..1" --> "*" DetalleFactura : "vehículo facturado"
+Factura "1" *-- "1..*" PagoCobro : "imputaciones de pago"
+
+' Seguimiento y Tareas
+Contacto "1" --> "*" Interaccion : "historial de contacto"
+Usuario "1" --> "*" Interaccion : "registra llamada/chat"
+Usuario "1" --> "*" Tarea : "responsable"
+Contacto "0..1" --> "*" Tarea : "cliente asociado"
+
+@enduml

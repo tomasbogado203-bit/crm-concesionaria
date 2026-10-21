@@ -1,0 +1,428 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ENUMS (Opciones fijas del negocio)
+// ==========================================
+
+enum TipoPersona {
+  FISICA
+  JURIDICA
+}
+
+enum Sexo {
+  M
+  F
+  OTRO
+  NO_APLICA
+}
+
+enum CondicionVehiculo {
+  CERO_KM
+  USADO
+}
+
+enum EstadoVehiculo {
+  DISPONIBLE
+  RESERVADO
+  VENDIDO
+}
+
+enum EtapaOportunidad {
+  PROSPECTO
+  TEST_DRIVE
+  NEGOCIACION
+  RESERVADO
+  GANADA
+  PERDIDA
+}
+
+enum TipoComprobante {
+  FACTURA_A
+  FACTURA_B
+  FACTURA_C
+  RECIBO
+}
+
+enum EstadoFactura {
+  EMITIDA
+  PAGADA
+  ANULADA
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TRANSFERENCIA
+  CHEQUE
+  PRENDARIO
+  PERMUTA
+}
+
+enum CanalInteraccion {
+  WHATSAPP
+  LLAMADA
+  VISITA_SALON
+  EMAIL
+}
+
+enum EstadoTarea {
+  PENDIENTE
+  COMPLETADA
+}
+
+// ==========================================
+// NÚCLEO PIZARRA: CONTACTOS, USUARIOS Y ROLES
+// ==========================================
+
+model Contacto {
+  id              Int          @id @default(autoincrement())
+  tipoPersona     TipoPersona  @default(FISICA) @map("tipo_persona")
+  apellido        String?
+  nombres         String
+  razonSocial     String?      @map("razon_social") // Para Persona Jurídica
+  numeroDni       String       @map("numero_dni")   // DNI o CUIT
+  fechaNaci       DateTime?    @map("fecha_naci")
+  sexo            Sexo?        @default(NO_APLICA)
+  snActivo        Boolean      @default(true) @map("sn_activo")
+  telefono        String?
+  email           String?
+  direccion       String?
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  // Relación 1 a (0..1) con Usuarios
+  usuario         Usuario?
+
+  // Relación N:M con Roles comerciales de contacto (Cliente, Proveedor, etc.)
+  roles           ContactoRol[]
+
+  // Negocio Concesionaria
+  oportunidades   Oportunidad[]
+  interacciones   Interaccion[]
+  tareas          Tarea[]
+  facturas        Factura[]
+  pruebasManejo   PruebaManejo[]
+  tasaciones      Tasacion[]
+
+  @@map("contactos")
+}
+
+
+model Usuario {
+  id              Int              @id @default(autoincrement())
+  contactoId      Int              @unique @map("id_contacto")
+  contacto        Contacto         @relation(fields: [contactoId], references: [id])
+  nombreUsuario   String           @unique @map("nombre_usuario")
+  mail            String           @unique
+  password        String           @map("contrasena")
+  sucursal        String?          @map("suc")
+  snActivo        Boolean          @default(true) @map("sn_activo")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  // Seguridad: Perfiles asignados al usuario (Vendedor, Facturador, etc.)
+  perfiles        PerfilUsuario[]
+
+  // Negocio: Operaciones asignadas
+  oportunidades   Oportunidad[]
+  interacciones   Interaccion[]
+  tareas          Tarea[]
+  facturasEmitidas Factura[]
+  pruebasManejo   PruebaManejo[]
+  tasaciones      Tasacion[]
+
+  @@map("usuarios")
+}
+
+
+model Rol {
+  id              Int           @id @default(autoincrement())
+  descripcionRol  String        @unique @map("descripcion_rol") // Cliente, Proveedor, Empleado...
+  contactos       ContactoRol[]
+
+  @@map("roles")
+}
+
+model ContactoRol {
+  contactoId      Int           @map("id_contacto")
+  rolId           Int           @map("id_rol")
+  contacto        Contacto      @relation(fields: [contactoId], references: [id])
+  rol             Rol           @relation(fields: [rolId], references: [id])
+
+  @@id([contactoId, rolId])
+  @@map("contactos_roles")
+}
+
+// ==========================================
+// SEGURIDAD PIZARRA: PERFILES, MENÚS Y PRG
+// ==========================================
+
+model Perfil {
+  id              Int               @id @default(autoincrement())
+  nombrePerfil    String            @unique @map("nombre_perfil") // VENDEDOR, FACTURADOR, ADMIN...
+  descripcion     String?
+  usuarios        PerfilUsuario[]
+  permisos        PerfilMenuPrg[]
+
+  @@map("perfiles")
+}
+
+model PerfilUsuario {
+  usuarioId       Int               @map("id_usuario")
+  perfilId        Int               @map("id_perfil")
+  usuario         Usuario           @relation(fields: [usuarioId], references: [id])
+  perfil          Perfil            @relation(fields: [perfilId], references: [id])
+
+  @@id([usuarioId, perfilId])
+  @@map("perfiles_usuarios")
+}
+
+model Menu {
+  id              Int               @id @default(autoincrement())
+  menuPadreId     Int?              @map("menu_padre_id")
+  menuPadre       Menu?             @relation("JerarquiaMenus", fields: [menuPadreId], references: [id])
+  submenus        Menu[]            @relation("JerarquiaMenus")
+  nombreMenu      String            @map("nombre_menu") // Facturación, Ventas, Stock...
+  orden           Int               @default(0)
+  programas       ProgramaAccion[]
+  permisos        PerfilMenuPrg[]
+
+  @@map("menus")
+}
+
+model ProgramaAccion {
+  id              Int               @id @default(autoincrement())
+  menuId          Int               @map("menu_id")
+  menu            Menu              @relation(fields: [menuId], references: [id])
+  codigoPrg       String            @unique @map("codigo_prg") // FACT_VENTAS_EMITIR, AUTO_CREAR...
+  descripcion     String
+  permisos        PerfilMenuPrg[]
+
+  @@map("programas_acciones")
+}
+
+model PerfilMenuPrg {
+  id              Int               @id @default(autoincrement())
+  perfilId        Int               @map("id_perfil")
+  menuId          Int               @map("id_menu")
+  prgId           Int               @map("id_prg")
+  perfil          Perfil            @relation(fields: [perfilId], references: [id])
+  menu            Menu              @relation(fields: [menuId], references: [id])
+  prg             ProgramaAccion    @relation(fields: [prgId], references: [id])
+
+  @@unique([perfilId, menuId, prgId])
+  @@map("perfiles_menus_prg")
+}
+
+// ==========================================
+// NEGOCIO CONCESIONARIA: STOCK Y VENTAS
+// ==========================================
+
+model Vehiculo {
+  id              Int               @id @default(autoincrement())
+  vin             String            @unique
+  marca           String
+  modelo          String
+  version         String
+  anio            Int
+  condicion       CondicionVehiculo @default(CERO_KM)
+  kilometraje     Int               @default(0)
+  precioVenta     Decimal           @db.Decimal(12, 2) @map("precio_venta")
+  costoCompra     Decimal?          @db.Decimal(12, 2) @map("costo_compra")
+  estado          EstadoVehiculo    @default(DISPONIBLE)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  oportunidades   Oportunidad[]
+  detallesFactura DetalleFactura[]
+  pruebasManejo   PruebaManejo[]
+
+  @@map("vehiculos")
+}
+
+
+model Oportunidad {
+  id              Int               @id @default(autoincrement())
+  clienteId       Int               @map("id_contacto")
+  cliente         Contacto          @relation(fields: [clienteId], references: [id])
+  usuarioId       Int               @map("id_usuario")
+  usuario         Usuario           @relation(fields: [usuarioId], references: [id])
+  vehiculoId      Int               @map("id_vehiculo")
+  vehiculo        Vehiculo          @relation(fields: [vehiculoId], references: [id])
+  etapa           EtapaOportunidad  @default(PROSPECTO)
+  montoEstimado   Decimal           @db.Decimal(12, 2) @map("monto_estimado")
+  motivoPerdida   String?           @map("motivo_perdida")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  facturas        Factura[]
+  tasaciones      Tasacion[]
+
+  @@map("oportunidades")
+}
+
+// ==========================================
+// NEGOCIO CONCESIONARIA: FACTURACIÓN Y PAGOS
+// ==========================================
+
+model Factura {
+  id                Int             @id @default(autoincrement())
+  oportunidadId     Int?            @map("id_oportunidad")
+  oportunidad       Oportunidad?    @relation(fields: [oportunidadId], references: [id])
+  clienteId         Int             @map("id_contacto")
+  cliente           Contacto        @relation(fields: [clienteId], references: [id])
+  usuarioId         Int             @map("id_usuario")
+  usuario           Usuario         @relation(fields: [usuarioId], references: [id])
+  tipoComprobante   TipoComprobante @default(FACTURA_B) @map("tipo_comprobante")
+  puntoVenta        String          @map("punto_venta")
+  numeroComprobante String          @map("numero_comprobante")
+  caeAfip           String?         @map("cae_afip")
+  fechaEmision      DateTime        @default(now()) @map("fecha_emision")
+  total             Decimal         @db.Decimal(12, 2)
+  estado            EstadoFactura   @default(EMITIDA)
+
+  detalles          DetalleFactura[]
+  pagos             PagoCobro[]
+
+  @@map("facturas")
+}
+
+model DetalleFactura {
+  id              Int               @id @default(autoincrement())
+  facturaId       Int               @map("id_factura")
+  factura         Factura           @relation(fields: [facturaId], references: [id])
+  vehiculoId      Int?              @map("id_vehiculo")
+  vehiculo        Vehiculo?         @relation(fields: [vehiculoId], references: [id])
+  descripcion     String
+  cantidad        Int               @default(1)
+  precioUnitario  Decimal           @db.Decimal(12, 2) @map("precio_unitario")
+  subtotal        Decimal           @db.Decimal(12, 2)
+
+  @@map("detalles_factura")
+}
+
+model PagoCobro {
+  id              Int               @id @default(autoincrement())
+  facturaId       Int               @map("id_factura")
+  factura         Factura           @relation(fields: [facturaId], references: [id])
+  metodoPago      MetodoPago        @map("metodo_pago")
+  monto           Decimal           @db.Decimal(12, 2)
+  fechaPago       DateTime          @default(now()) @map("fecha_pago")
+  nroComprobante  String?           @map("nro_comprobante")
+
+  @@map("pagos_cobros")
+}
+
+// ==========================================
+// SEGUIMIENTO: INTERACCIONES Y TAREAS
+// ==========================================
+
+model Interaccion {
+  id              Int               @id @default(autoincrement())
+  clienteId       Int               @map("id_contacto")
+  cliente         Contacto          @relation(fields: [clienteId], references: [id])
+  usuarioId       Int               @map("id_usuario")
+  usuario         Usuario           @relation(fields: [usuarioId], references: [id])
+  canal           CanalInteraccion
+  resumen         String            @db.Text
+  fecha           DateTime          @default(now())
+
+  @@map("interacciones")
+}
+
+model Tarea {
+  id                Int             @id @default(autoincrement())
+  usuarioId         Int             @map("id_usuario")
+  usuario           Usuario         @relation(fields: [usuarioId], references: [id])
+  clienteId         Int?            @map("id_contacto")
+  cliente           Contacto?       @relation(fields: [clienteId], references: [id])
+  descripcion       String
+  fechaVencimiento  DateTime        @map("fecha_vencimiento")
+  estado            EstadoTarea     @default(PENDIENTE)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@map("tareas")
+}
+
+enum EstadoTestDrive {
+  PROGRAMADO
+  COMPLETADO
+  CANCELADO
+}
+
+model PruebaManejo {
+  id                Int             @id @default(autoincrement())
+  clienteId         Int             @map("id_contacto")
+  cliente           Contacto        @relation(fields: [clienteId], references: [id])
+  usuarioId         Int             @map("id_usuario")
+  usuario           Usuario         @relation(fields: [usuarioId], references: [id])
+  vehiculoId        Int             @map("id_vehiculo")
+  vehiculo          Vehiculo        @relation(fields: [vehiculoId], references: [id])
+  fechaHora         DateTime        @map("fecha_hora")
+  licenciaConducir  String          @map("licencia_conducir")
+  estado            EstadoTestDrive @default(PROGRAMADO)
+  feedback          String?         @db.Text
+  calificacion      Int?
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  @@map("pruebas_manejo")
+}
+
+// ==========================================
+// TASACIONES Y PERMUTAS DE USADOS
+// ==========================================
+
+enum EstadoTasacion {
+  SOLICITADA
+  EN_PERITAJE
+  APROBADA
+  RECHAZADA
+  INGRESADO_STOCK
+}
+
+model Tasacion {
+  id                  Int             @id @default(autoincrement())
+  clienteId           Int             @map("id_contacto")
+  cliente             Contacto        @relation(fields: [clienteId], references: [id])
+  usuarioId           Int             @map("id_usuario")
+  usuario             Usuario         @relation(fields: [usuarioId], references: [id])
+  oportunidadId       Int?            @map("id_oportunidad")
+  oportunidad         Oportunidad?    @relation(fields: [oportunidadId], references: [id])
+
+  // Datos del vehículo usado a permutar
+  dominio             String          // Patente / Matrícula
+  marca               String
+  modelo              String
+  version             String?
+  anio                Int
+  kilometraje         Int
+  combustible         String?         @default("NAFTA")
+
+  // Peritaje técnico del tasador
+  estadoCarroceria    String?         @default("BUENO") // BUENO, REGULAR, MALO
+  estadoPintura       String?         @default("BUENO")
+  estadoMecanica      String?         @default("BUENO")
+  estadoCubiertas     String?         @default("BUENO")
+  detallesPeritaje    String?         @db.Text @map("detalles_peritaje")
+
+  // Evaluación económica
+  valorTasado         Decimal?        @db.Decimal(12, 2) @map("valor_tasado")
+  valorAceptado       Decimal?        @db.Decimal(12, 2) @map("valor_aceptado")
+
+  estado              EstadoTasacion  @default(SOLICITADA)
+  vehiculoIngresadoId Int?            @map("id_vehiculo_ingresado")
+
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+
+  @@map("tasaciones")
+}
+

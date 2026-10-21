@@ -1,0 +1,239 @@
+@startuml Diagrama_ER_CRM_Concesionaria
+!theme plain
+hide circle
+skinparam linetype ortho
+skinparam roundcorner 5
+skinparam shadowing false
+
+skinparam entity {
+    BackgroundColor #F8FAFC
+    BorderColor #0F172A
+    FontName Arial
+    FontSize 11
+}
+
+' ==========================================================
+' NÚCLEO: CONTACTOS, USUARIOS Y ROLES (Party Model Pizarra)
+' ==========================================================
+entity "contactos" as contactos {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * tipo_persona : ENUM('FISICA', 'JURIDICA')
+    apellido : VARCHAR(100)
+    * nombres : VARCHAR(100)
+    razon_social : VARCHAR(150)
+    * numero_dni : VARCHAR(30)
+    fecha_naci : DATETIME
+    sexo : ENUM('M', 'F', 'OTRO', 'NO_APLICA')
+    * sn_activo : BOOLEAN
+    telefono : VARCHAR(50)
+    email : VARCHAR(100)
+    direccion : VARCHAR(200)
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+entity "usuarios" as usuarios {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_contacto : INT <<FK, UNIQUE>>
+    * nombre_usuario : VARCHAR(50) <<UNIQUE>>
+    * mail : VARCHAR(100) <<UNIQUE>>
+    * contrasena : VARCHAR(255)
+    suc : VARCHAR(50)
+    * sn_activo : BOOLEAN
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+entity "roles" as roles {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * descripcion_rol : VARCHAR(50) <<UNIQUE>>
+}
+
+entity "contactos_roles" as contactos_roles {
+    * id_contacto : INT <<PK, FK>>
+    * id_rol : INT <<PK, FK>>
+}
+
+' ==========================================================
+' SEGURIDAD: PERFILES, MENÚS Y PRG (RBAC Pizarra)
+' ==========================================================
+entity "perfiles" as perfiles {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * nombre_perfil : VARCHAR(50) <<UNIQUE>>
+    descripcion : VARCHAR(255)
+}
+
+entity "perfiles_usuarios" as perfiles_usuarios {
+    * id_usuario : INT <<PK, FK>>
+    * id_perfil : INT <<PK, FK>>
+}
+
+entity "menus" as menus {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    menu_padre_id : INT <<FK, NULL>>
+    * nombre_menu : VARCHAR(100)
+    * orden : INT
+}
+
+entity "programas_acciones" as programas_acciones {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * menu_id : INT <<FK>>
+    * codigo_prg : VARCHAR(60) <<UNIQUE>>
+    * descripcion : VARCHAR(200)
+}
+
+entity "perfiles_menus_prg" as perfiles_menus_prg {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_perfil : INT <<FK>>
+    * id_menu : INT <<FK>>
+    * id_prg : INT <<FK>>
+}
+
+' ==========================================================
+' NEGOCIO CONCESIONARIA: STOCK Y VENTAS
+' ==========================================================
+entity "vehiculos" as vehiculos {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * vin : VARCHAR(50) <<UNIQUE>>
+    * marca : VARCHAR(50)
+    * modelo : VARCHAR(50)
+    * version : VARCHAR(100)
+    * anio : INT
+    * condicion : ENUM('CERO_KM', 'USADO')
+    * kilometraje : INT
+    * precio_venta : DECIMAL(12,2)
+    costo_compra : DECIMAL(12,2)
+    * estado : ENUM('DISPONIBLE', 'RESERVADO', 'VENDIDO')
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+entity "oportunidades" as oportunidades {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_contacto : INT <<FK>>
+    * id_usuario : INT <<FK>>
+    * id_vehiculo : INT <<FK>>
+    * etapa : ENUM('PROSPECTO', 'TEST_DRIVE', 'NEGOCIACION', 'RESERVADO', 'GANADA', 'PERDIDA')
+    * monto_estimado : DECIMAL(12,2)
+    motivo_perdida : VARCHAR(255)
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+' ==========================================================
+' FACTURACIÓN Y COBRANZAS
+' ==========================================================
+entity "facturas" as facturas {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    id_oportunidad : INT <<FK, NULL>>
+    * id_contacto : INT <<FK>>
+    * id_usuario : INT <<FK>>
+    * tipo_comprobante : ENUM('FACTURA_A', 'FACTURA_B', 'FACTURA_C', 'RECIBO')
+    * punto_venta : VARCHAR(10)
+    * numero_comprobante : VARCHAR(20)
+    cae_afip : VARCHAR(50)
+    * fecha_emision : DATETIME
+    * total : DECIMAL(12,2)
+    * estado : ENUM('EMITIDA', 'PAGADA', 'ANULADA')
+}
+
+entity "detalles_factura" as detalles_factura {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_factura : INT <<FK>>
+    id_vehiculo : INT <<FK, NULL>>
+    * descripcion : VARCHAR(200)
+    * cantidad : INT
+    * precio_unitario : DECIMAL(12,2)
+    * subtotal : DECIMAL(12,2)
+}
+
+entity "pagos_cobros" as pagos_cobros {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_factura : INT <<FK>>
+    * metodo_pago : ENUM('EFECTIVO', 'TRANSFERENCIA', 'CHEQUE', 'PRENDARIO', 'PERMUTA')
+    * monto : DECIMAL(12,2)
+    * fecha_pago : DATETIME
+    nro_comprobante : VARCHAR(100)
+}
+
+' ==========================================================
+' SEGUIMIENTO CRM: INTERACCIONES Y TAREAS
+' ==========================================================
+entity "interacciones" as interacciones {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_contacto : INT <<FK>>
+    * id_usuario : INT <<FK>>
+    * canal : ENUM('WHATSAPP', 'LLAMADA', 'VISITA_SALON', 'EMAIL')
+    * resumen : TEXT
+    * fecha : DATETIME
+}
+
+entity "tareas" as tareas {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_usuario : INT <<FK>>
+    id_contacto : INT <<FK, NULL>>
+    * descripcion : VARCHAR(255)
+    * fecha_vencimiento : DATETIME
+    * estado : ENUM('PENDIENTE', 'COMPLETADA')
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+' ==========================================================
+' RELACIONES (Notación Crow's Foot)
+' ==========================================================
+
+' Contactos y Usuarios (1 a 0..1)
+contactos ||--o| usuarios : "id = id_contacto"
+
+' Contactos y Roles (N:M)
+contactos ||--o{ contactos_roles : "id = id_contacto"
+roles ||--o{ contactos_roles : "id = id_rol"
+
+' Usuarios y Perfiles (N:M)
+usuarios ||--o{ perfiles_usuarios : "id = id_usuario"
+perfiles ||--o{ perfiles_usuarios : "id = id_perfil"
+
+' Menús y PRG (Jerarquía y 1:N)
+menus ||--o{ menus : "id = menu_padre_id"
+menus ||--o{ programas_acciones : "id = menu_id"
+
+' Matriz de Permisos (N:M entre Perfil, Menú y PRG)
+perfiles ||--o{ perfiles_menus_prg : "id = id_perfil"
+menus ||--o{ perfiles_menus_prg : "id = id_menu"
+programas_acciones ||--o{ perfiles_menus_prg : "id = id_prg"
+
+' CRM: Oportunidades
+contactos ||--o{ oportunidades : "id = id_contacto (Cliente)"
+usuarios ||--o{ oportunidades : "id = id_usuario (Vendedor)"
+vehiculos ||--o{ oportunidades : "id = id_vehiculo"
+
+' Facturación
+oportunidades ||--o| facturas : "id = id_oportunidad"
+contactos ||--o{ facturas : "id = id_contacto (Receptor)"
+usuarios ||--o{ facturas : "id = id_usuario (Emisor)"
+facturas ||--|{ detalles_factura : "id = id_factura"
+vehiculos ||--o{ detalles_factura : "id = id_vehiculo"
+facturas ||--|{ pagos_cobros : "id = id_factura"
+
+' Seguimiento
+contactos ||--o{ interacciones : "id = id_contacto"
+usuarios ||--o{ interacciones : "id = id_usuario"
+usuarios ||--o{ tareas : "id = id_usuario"
+contactos ||--o{ tareas : "id = id_contacto"
+
+@enduml
