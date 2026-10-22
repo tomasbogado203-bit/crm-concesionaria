@@ -15,7 +15,12 @@ import {
   ArrowRight,
   ShieldCheck,
   Ban,
+  Printer,
+  Download,
+  QrCode,
+  Building2,
 } from 'lucide-react';
+import { exportToCSV } from '../utils/exportCsv';
 
 export const FacturacionView = () => {
   const [facturas, setFacturas] = useState([]);
@@ -134,6 +139,25 @@ export const FacturacionView = () => {
     }
   };
 
+  const handleExportarCSV = () => {
+    const data = facturas.map((f) => {
+      const cobrado = f.pagos?.reduce((acc, p) => acc + Number(p.monto), 0) || 0;
+      const saldo = Math.max(0, Number(f.total) - cobrado);
+      return {
+        Comprobante: `${f.tipoComprobante} ${f.puntoVenta}-${f.numeroComprobante}`,
+        CAE_AFIP: f.caeAfip || 'Sin CAE',
+        Cliente: `${f.cliente?.nombres || ''} ${f.cliente?.apellido || f.cliente?.razonSocial || ''}`.trim(),
+        DNI_CUIT: f.cliente?.numeroDni || '',
+        Fecha_Emision: new Date(f.fechaEmision).toLocaleDateString('es-AR'),
+        Total: f.total,
+        Cobrado: cobrado,
+        Saldo: saldo,
+        Estado: f.estado,
+      };
+    });
+    exportToCSV('libro_iva_ventas_facturas', data);
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
@@ -145,33 +169,46 @@ export const FacturacionView = () => {
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl self-start sm:self-auto">
-          <button
-            onClick={() => setTabActivo('EMITIDAS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
-              tabActivo === 'EMITIDAS'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            Libro de Ventas ({facturas.length})
-          </button>
-          <button
-            onClick={() => setTabActivo('PENDIENTES')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
-              tabActivo === 'PENDIENTES'
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <span>Listas para Facturar</span>
-            {oportunidadesGanadas.length > 0 && (
-              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
-                {oportunidadesGanadas.length}
-              </span>
-            )}
-          </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          {tabActivo === 'EMITIDAS' && facturas.length > 0 && (
+            <button
+              onClick={handleExportarCSV}
+              className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
+              title="Descargar libro de IVA Ventas en formato CSV para Excel"
+            >
+              <Download className="w-4 h-4 text-blue-400" />
+              <span>Exportar CSV</span>
+            </button>
+          )}
+
+          {/* Tab Switcher */}
+          <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-xl">
+            <button
+              onClick={() => setTabActivo('EMITIDAS')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                tabActivo === 'EMITIDAS'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Libro de Ventas ({facturas.length})
+            </button>
+            <button
+              onClick={() => setTabActivo('PENDIENTES')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                tabActivo === 'PENDIENTES'
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <span>Listas para Facturar</span>
+              {oportunidadesGanadas.length > 0 && (
+                <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
+                  {oportunidadesGanadas.length}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -491,60 +528,219 @@ export const FacturacionView = () => {
         </div>
       )}
 
-      {/* MODAL 3: Ver Comprobante y Cobros */}
+      {/* MODAL 3: Comprobante Fiscal Oficial Imprimible */}
       {modalDetalle && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
-              <h3 className="text-sm font-bold text-white">Detalle de Comprobante Fiscal</h3>
-              <button onClick={() => setModalDetalle(null)} className="text-slate-500 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden my-6">
+            {/* Modal Controls Header (Hidden in Print) */}
+            <div className="p-4 px-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/70 print:hidden">
+              <div className="flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-blue-400" />
+                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                  Comprobante Electrónico AFIP Oficial
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Imprimir Comprobante</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalDetalle(null)}
+                  className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="space-y-4 text-xs">
-              <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <div className="flex justify-between font-bold text-white">
-                  <span>{modalDetalle.tipoComprobante} {modalDetalle.puntoVenta}-{modalDetalle.numeroComprobante}</span>
-                  <span className="text-emerald-400">${Number(modalDetalle.total).toLocaleString('es-AR')}</span>
+            {/* Printable Formal Invoice Sheet */}
+            <div className="p-6 md:p-8 space-y-6 text-xs bg-slate-900 print:bg-white print:text-black">
+              {/* Header Box */}
+              <div className="border border-slate-800 print:border-slate-400 rounded-2xl p-4 bg-slate-950/50 print:bg-white relative">
+                {/* Central Letter Badge */}
+                <div className="absolute left-1/2 -top-3 transform -translate-x-1/2 w-10 h-10 bg-slate-900 print:bg-white border-2 border-slate-700 print:border-slate-800 rounded-xl flex flex-col items-center justify-center text-center shadow-md">
+                  <span className="font-black text-sm text-white print:text-black leading-none">
+                    {modalDetalle.tipoComprobante?.endsWith('A') ? 'A' : 'B'}
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-400 print:text-slate-600 leading-none">
+                    {modalDetalle.tipoComprobante?.endsWith('A') ? 'COD. 01' : 'COD. 06'}
+                  </span>
                 </div>
-                <div className="flex justify-between text-slate-400 font-mono text-[11px]">
-                  <span>CAE AFIP: {modalDetalle.caeAfip}</span>
-                  <span>{new Date(modalDetalle.fechaEmision).toLocaleDateString()}</span>
-                </div>
-              </div>
 
-              <div>
-                <h4 className="font-bold text-slate-300 mb-2">Ítems Facturados:</h4>
-                <div className="space-y-1 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px]">
-                  {modalDetalle.detalles?.map((d) => (
-                    <div key={d.id} className="flex justify-between text-slate-300">
-                      <span>{d.descripcion} (x{d.cantidad})</span>
-                      <span className="font-mono text-white">${Number(d.subtotal).toLocaleString('es-AR')}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-slate-300 mb-2">Historial de Cobros Imputados:</h4>
-                {modalDetalle.pagos?.length === 0 ? (
-                  <p className="text-[11px] text-slate-500 italic">No registra pagos todavía.</p>
-                ) : (
-                  <div className="space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px]">
-                    {modalDetalle.pagos?.map((p) => (
-                      <div key={p.id} className="flex justify-between items-center text-slate-300">
-                        <span>
-                          <strong className="text-blue-400">{p.metodoPago}</strong>
-                          {p.nroComprobante && ` (${p.nroComprobante})`}
-                        </span>
-                        <span className="font-mono text-emerald-400 font-bold">
-                          +${Number(p.monto).toLocaleString('es-AR')}
-                        </span>
-                      </div>
-                    ))}
+                <div className="grid grid-cols-2 gap-6 pt-2">
+                  <div>
+                    <h2 className="font-black text-base text-white print:text-black tracking-tight">
+                      AUTO CRM CONCESIONARIA S.A.
+                    </h2>
+                    <p className="text-[11px] text-slate-400 print:text-slate-600 mt-0.5">
+                      Venta de Vehículos 0km y Usados Seleccionados
+                    </p>
+                    <p className="text-[10px] text-slate-500 print:text-slate-600 mt-2">
+                      Casa Central: Av. Automotor 4500, Posadas, Misiones<br />
+                      IVA Responsable Inscripto
+                    </p>
                   </div>
-                )}
+
+                  <div className="text-right space-y-1">
+                    <p className="font-bold text-sm text-white print:text-black uppercase">
+                      {modalDetalle.tipoComprobante?.replace('_', ' ')}
+                    </p>
+                    <p className="font-mono text-xs font-bold text-blue-400 print:text-black">
+                      Nº {modalDetalle.puntoVenta}-{modalDetalle.numeroComprobante}
+                    </p>
+                    <p className="text-[11px] text-slate-400 print:text-slate-600">
+                      Fecha: {new Date(modalDetalle.fechaEmision).toLocaleDateString('es-AR')}
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-400 print:text-slate-600">
+                      CUIT: 30-71458923-4 · IIBB: 901-238491-0
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer Box */}
+              <div className="border border-slate-800 print:border-slate-400 rounded-xl p-3.5 bg-slate-950/40 print:bg-white grid grid-cols-2 gap-4 text-[11px]">
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-500 print:text-slate-600 block">
+                    Adquirente / Cliente:
+                  </span>
+                  <p className="font-bold text-white print:text-black text-xs">
+                    {modalDetalle.cliente?.nombres} {modalDetalle.cliente?.apellido || modalDetalle.cliente?.razonSocial}
+                  </p>
+                  <p className="text-slate-400 print:text-slate-600 mt-0.5">
+                    DNI / CUIT: <strong className="text-slate-300 print:text-black font-mono">{modalDetalle.cliente?.numeroDni}</strong>
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] uppercase font-bold text-slate-500 print:text-slate-600 block">
+                    Condición Comercial:
+                  </span>
+                  <p className="text-slate-300 print:text-black">
+                    {modalDetalle.cliente?.tipoPersona === 'JURIDICA' ? 'IVA Responsable Inscripto' : 'IVA Consumidor Final'}
+                  </p>
+                  <p className="text-slate-400 print:text-slate-600 mt-0.5">
+                    Condición de Venta: Contado / Financiado
+                  </p>
+                </div>
+              </div>
+
+              {/* Items Table */}
+              <div className="border border-slate-800 print:border-slate-400 rounded-xl overflow-hidden">
+                <table className="w-full text-left text-[11px]">
+                  <thead className="bg-slate-950 print:bg-slate-100 border-b border-slate-800 print:border-slate-400 text-slate-400 print:text-slate-700 uppercase text-[9px] font-bold">
+                    <tr>
+                      <th className="py-2.5 px-3">Cant.</th>
+                      <th className="py-2.5 px-3">Descripción de la Unidad / Concepto</th>
+                      <th className="py-2.5 px-3 text-right">Precio Unitario</th>
+                      <th className="py-2.5 px-3 text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 print:divide-slate-300">
+                    {modalDetalle.detalles?.map((d) => (
+                      <tr key={d.id}>
+                        <td className="py-2.5 px-3 font-mono">{d.cantidad}</td>
+                        <td className="py-2.5 px-3 font-medium text-slate-200 print:text-black">
+                          {d.descripcion}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono text-slate-300 print:text-black">
+                          ${Number(d.precioUnitario).toLocaleString('es-AR')}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-white print:text-black">
+                          ${Number(d.subtotal).toLocaleString('es-AR')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Payments & Totals Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Cashier Payment Breakdown */}
+                <div className="p-3.5 bg-slate-950/60 print:bg-slate-50 border border-slate-800 print:border-slate-400 rounded-xl space-y-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 print:text-slate-700 block">
+                    Medios de Pago Imputados en Caja:
+                  </span>
+                  {modalDetalle.pagos?.length === 0 ? (
+                    <p className="text-[11px] text-slate-500 italic">Sin cobros registrados en caja.</p>
+                  ) : (
+                    <div className="space-y-1.5 text-[11px]">
+                      {modalDetalle.pagos?.map((p) => (
+                        <div key={p.id} className="flex justify-between items-center text-slate-300 print:text-slate-800">
+                          <span>
+                            <strong className="text-blue-400 print:text-slate-900">{p.metodoPago}</strong>
+                            {p.nroComprobante && ` (${p.nroComprobante})`}
+                          </span>
+                          <span className="font-mono font-bold text-emerald-400 print:text-slate-900">
+                            +${Number(p.monto).toLocaleString('es-AR')}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Totals Summary */}
+                <div className="p-3.5 bg-slate-950 print:bg-slate-50 border border-slate-800 print:border-slate-400 rounded-xl space-y-2">
+                  {(() => {
+                    const cobrado = modalDetalle.pagos?.reduce((acc, p) => acc + Number(p.monto), 0) || 0;
+                    const saldo = Math.max(0, Number(modalDetalle.total) - cobrado);
+                    return (
+                      <>
+                        <div className="flex justify-between text-slate-400 print:text-slate-700 text-[11px]">
+                          <span>Importe Total:</span>
+                          <span className="font-mono font-bold text-white print:text-black">
+                            ${Number(modalDetalle.total).toLocaleString('es-AR')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-slate-400 print:text-slate-700 text-[11px]">
+                          <span>Total Cancelado en Caja:</span>
+                          <span className="font-mono font-bold text-emerald-400 print:text-slate-900">
+                            ${cobrado.toLocaleString('es-AR')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between font-bold text-xs pt-2 border-t border-slate-800 print:border-slate-300">
+                          <span className="text-white print:text-black">Saldo Remanente:</span>
+                          <span className={`font-mono ${saldo === 0 ? 'text-emerald-400 print:text-emerald-700' : 'text-amber-400 print:text-amber-700'}`}>
+                            {saldo === 0 ? 'Saldado (100%)' : `$${saldo.toLocaleString('es-AR')}`}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* AFIP CAE Footer Box */}
+              <div className="border border-slate-800 print:border-slate-400 rounded-xl p-4 bg-slate-950/70 print:bg-white flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white rounded-lg p-1.5 flex items-center justify-center text-slate-950 shadow">
+                    <QrCode className="w-9 h-9" />
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-white print:text-black block">
+                      Comprobante Autorizado por AFIP
+                    </span>
+                    <p className="text-[10px] text-slate-400 print:text-slate-600">
+                      Régimen de Facturación Electrónica RG 4291
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right text-[11px] font-mono space-y-0.5">
+                  <p className="text-slate-400 print:text-slate-700">
+                    CAE Nº: <strong className="text-blue-400 print:text-black">{modalDetalle.caeAfip || '32849102847192'}</strong>
+                  </p>
+                  <p className="text-slate-500 print:text-slate-600 text-[10px]">
+                    Fecha de Vto. de CAE: {new Date(new Date(modalDetalle.fechaEmision).getTime() + 10 * 24 * 60 * 60 * 1000).toLocaleDateString('es-AR')}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

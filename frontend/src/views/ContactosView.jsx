@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../api';
-import { Users, Plus, Search, Building2, User, Phone, Mail, FileText, CheckCircle2, MessageSquare, X } from 'lucide-react';
+import { Users, Plus, Search, Building2, User, Phone, Mail, FileText, CheckCircle2, MessageSquare, X, Download } from 'lucide-react';
+import { exportToCSV } from '../utils/exportCsv';
 
 export const ContactosView = () => {
   const [contactos, setContactos] = useState([]);
@@ -106,6 +107,19 @@ export const ContactosView = () => {
     return nombreCompleto.includes(q) || (c.numeroDni && c.numeroDni.includes(q));
   });
 
+  const handleExportarCSV = () => {
+    const data = contactosFiltrados.map((c) => ({
+      ID: c.id,
+      Tipo_Persona: c.tipoPersona,
+      Nombre_RazonSocial: c.tipoPersona === 'JURIDICA' ? c.razonSocial : `${c.nombres} ${c.apellido || ''}`.trim(),
+      Documento_DNI_CUIT: c.numeroDni || '',
+      Telefono: c.telefono || '',
+      Email: c.email || '',
+      Fecha_Alta: c.fechaCreacion ? new Date(c.fechaCreacion).toLocaleDateString('es-AR') : '',
+    }));
+    exportToCSV('padron_contactos_clientes', data);
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* View Header */}
@@ -115,13 +129,24 @@ export const ContactosView = () => {
           <p className="text-xs text-slate-400 mt-0.5">Gestión unificada de prospectos, compradores y empresas.</p>
         </div>
 
-        <button
-          onClick={() => setModalAbierto(true)}
-          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Nuevo Contacto</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={handleExportarCSV}
+            className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
+            title="Descargar padrón en formato CSV para Excel"
+          >
+            <Download className="w-4 h-4 text-blue-400" />
+            <span>Exportar CSV</span>
+          </button>
+
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nuevo Contacto</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}

@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { apiFetch } from '../api';
-import { Car, Plus, Search, Tag, CheckCircle2, AlertCircle, XCircle, X } from 'lucide-react';
+import {
+  Car,
+  Plus,
+  Search,
+  Tag,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  X,
+  Download,
+  Calculator,
+} from 'lucide-react';
+import { exportToCSV } from '../utils/exportCsv';
+import { SimuladorFinancieroModal } from '../components/SimuladorFinancieroModal';
 
 export const VehiculosView = () => {
   const [vehiculos, setVehiculos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtroCondicion, setFiltroCondicion] = useState('TODOS');
   const [modalAbierto, setModalAbierto] = useState(false);
+  const [vehiculoSimular, setVehiculoSimular] = useState(null);
 
   // Form nuevo vehiculo
   const [vin, setVin] = useState('');
@@ -76,6 +90,23 @@ export const VehiculosView = () => {
     return v.condicion === filtroCondicion;
   });
 
+  const handleExportarCSV = () => {
+    const data = vehiculosFiltrados.map((v) => ({
+      ID: v.id,
+      VIN_Chasis: v.vin,
+      Marca: v.marca,
+      Modelo: v.modelo,
+      Version: v.version || '',
+      Año: v.anio,
+      Condicion: v.condicion === 'CERO_KM' ? '0 KM' : 'Usado',
+      Kilometraje: v.kilometraje,
+      Precio_Venta: v.precioVenta,
+      Costo_Compra: v.costoCompra || 0,
+      Estado: v.estado,
+    }));
+    exportToCSV('inventario_vehiculos', data);
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
@@ -85,13 +116,24 @@ export const VehiculosView = () => {
           <p className="text-xs text-slate-400 mt-0.5">Control de unidades 0km y usados disponibles en salón y depósito.</p>
         </div>
 
-        <button
-          onClick={() => setModalAbierto(true)}
-          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Ingresar Vehículo</span>
-        </button>
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+          <button
+            onClick={handleExportarCSV}
+            className="px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer"
+            title="Descargar planilla CSV para Excel"
+          >
+            <Download className="w-4 h-4 text-blue-400" />
+            <span>Exportar CSV</span>
+          </button>
+
+          <button
+            onClick={() => setModalAbierto(true)}
+            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-600/30 flex items-center gap-2 transition cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Ingresar Vehículo</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -100,7 +142,7 @@ export const VehiculosView = () => {
           <button
             key={f}
             onClick={() => setFiltroCondicion(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
               filtroCondicion === f
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'text-slate-400 hover:text-white hover:bg-slate-800'
@@ -170,6 +212,15 @@ export const VehiculosView = () => {
                     ${Number(v.precioVenta).toLocaleString('es-AR')}
                   </span>
                 </div>
+
+                <button
+                  onClick={() => setVehiculoSimular(v)}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  title="Simular crédito prendario y cuotas"
+                >
+                  <Calculator className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Simular Cuotas</span>
+                </button>
               </div>
             </div>
           ))
@@ -221,18 +272,18 @@ export const VehiculosView = () => {
                     required
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
-                    placeholder="2.0 SEG CVT"
+                    placeholder="XEI 2.0 CVT"
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Año *</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Año de Fabricación *</label>
                   <input
                     type="number"
                     required
                     value={anio}
                     onChange={(e) => setAnio(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -245,7 +296,7 @@ export const VehiculosView = () => {
                     onChange={(e) => setCondicion(e.target.value)}
                     className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500"
                   >
-                    <option value="CERO_KM">0 KM</option>
+                    <option value="CERO_KM">0 KM (Nuevo)</option>
                     <option value="USADO">Usado</option>
                   </select>
                 </div>
@@ -253,22 +304,24 @@ export const VehiculosView = () => {
                   <label className="block text-xs font-semibold text-slate-300 mb-1">Kilometraje</label>
                   <input
                     type="number"
-                    value={kilometraje}
+                    disabled={condicion === 'CERO_KM'}
+                    value={condicion === 'CERO_KM' ? 0 : kilometraje}
                     onChange={(e) => setKilometraje(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 disabled:opacity-40"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Número de Chasis / VIN *</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Número de Chasis / VIN (17 caracteres) *</label>
                 <input
                   type="text"
                   required
+                  maxLength={17}
                   value={vin}
-                  onChange={(e) => setVin(e.target.value)}
-                  placeholder="8AJBA35E7R9876543"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 font-mono focus:outline-none focus:border-blue-500"
+                  onChange={(e) => setVin(e.target.value.toUpperCase())}
+                  placeholder="8AJBA3FS0N0123456"
+                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 uppercase"
                 />
               </div>
 
@@ -280,8 +333,8 @@ export const VehiculosView = () => {
                     required
                     value={precioVenta}
                     onChange={(e) => setPrecioVenta(e.target.value)}
-                    placeholder="35000000"
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                    placeholder="32000000"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -290,8 +343,8 @@ export const VehiculosView = () => {
                     type="number"
                     value={costoCompra}
                     onChange={(e) => setCostoCompra(e.target.value)}
-                    placeholder="29000000"
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
+                    placeholder="26000000"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -315,6 +368,14 @@ export const VehiculosView = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Modal Simulador Financiero Prendario */}
+      {vehiculoSimular && (
+        <SimuladorFinancieroModal
+          vehiculo={vehiculoSimular}
+          onClose={() => setVehiculoSimular(null)}
+        />
       )}
     </div>
   );
