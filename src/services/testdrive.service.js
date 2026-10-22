@@ -143,7 +143,7 @@ export const registrarFeedback = async (id, datos, usuarioId, esAdmin = false) =
         clienteId: prueba.clienteId,
         usuarioId: Number(usuarioId),
         canal: 'VISITA_SALON',
-        resumen: `[Test Drive ${datos.estado || 'COMPLETADO'}] Calificación: ${datos.calificacion || 5}★. Feedback: ${datos.feedback || 'Sin observaciones'}.`,
+        resumen: `[Test Drive ${datos.estado || 'COMPLETADO'}] Calificación: ${datos.calificacion || 5}/5. Feedback: ${datos.feedback || 'Sin observaciones'}.`,
       },
     });
   } catch (err) {

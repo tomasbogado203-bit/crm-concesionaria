@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Car, Lock, Mail, User, ArrowRight, ShieldCheck, Sparkles, Building2 } from 'lucide-react';
+import { Car, Lock, Mail, User, ArrowRight, ShieldCheck, KeyRound, Building2 } from 'lucide-react';
 
 export const LoginView = () => {
   const { login, registro } = useAuth();
@@ -68,18 +68,18 @@ export const LoginView = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 relative overflow-hidden">
-      {/* Decorative blurred background shapes */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+      {/* Decorative subtle ambient lights */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8 relative z-10 backdrop-blur-xl">
-        {/* Logo and title */}
+        {/* Sleek corporate logo and title */}
         <div className="flex flex-col items-center text-center mb-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-xl shadow-blue-500/25 mb-3">
-            <Car className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-900 border border-slate-700/80 flex items-center justify-center shadow-lg shadow-black/40 mb-3">
+            <Car className="w-7 h-7 text-blue-400" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">AUTO CRM</h1>
-          <p className="text-xs text-slate-400 mt-1">Concesionaria Oficial · Acceso al Sistema</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">AUTO CRM</h1>
+          <p className="text-xs text-slate-400 mt-0.5">Concesionaria Oficial · Portal Comercial</p>
         </div>
 
         {/* Tab Switcher: Iniciar Sesión vs Registrarse */}
@@ -92,7 +92,7 @@ export const LoginView = () => {
             }}
             className={`flex-1 py-2 text-xs font-semibold rounded-lg transition ${
               modo === 'LOGIN'
-                ? 'bg-blue-600 text-white shadow-md'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -106,7 +106,7 @@ export const LoginView = () => {
             }}
             className={`flex-1 py-2 text-xs font-semibold rounded-lg transition ${
               modo === 'REGISTRO'
-                ? 'bg-blue-600 text-white shadow-md'
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
                 : 'text-slate-400 hover:text-white'
             }`}
           >
@@ -156,9 +156,9 @@ export const LoginView = () => {
             <button
               type="submit"
               disabled={cargando}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold rounded-xl shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
+              className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold rounded-xl shadow-md shadow-blue-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
             >
-              <span>{cargando ? 'Iniciando sesión...' : 'Ingresar al CRM'}</span>
+              <span>{cargando ? 'Iniciando sesión...' : 'Ingresar al Sistema'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -238,7 +238,7 @@ export const LoginView = () => {
             <button
               type="submit"
               disabled={cargando}
-              className="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer mt-2"
+              className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-emerald-600/30 flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer mt-2"
             >
               <span>{cargando ? 'Creando cuenta...' : 'Crear Cuenta y Acceder'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -248,21 +248,21 @@ export const LoginView = () => {
 
         {/* Quick login helper for demo */}
         <div className="mt-6 pt-5 border-t border-slate-800">
-          <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            Accesos de Demostración:
+          <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+            <KeyRound className="w-3.5 h-3.5 text-blue-400" />
+            Cuentas de Acceso Preconfiguradas:
           </p>
           <div className="space-y-2">
             <button
               type="button"
               onClick={() => loginRapido('carlos@concesionaria.com', 'Password123')}
-              className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition"
+              className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition cursor-pointer"
             >
               <div>
                 <p className="font-semibold text-white group-hover:text-blue-400 transition">Carlos Vendedor</p>
                 <p className="text-[10px] text-slate-500">carlos@concesionaria.com</p>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
                 VENDEDOR
               </span>
             </button>
@@ -270,13 +270,13 @@ export const LoginView = () => {
             <button
               type="button"
               onClick={() => loginRapido('facturador@concesionaria.com', 'Password123')}
-              className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition"
+              className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition cursor-pointer"
             >
               <div>
                 <p className="font-semibold text-white group-hover:text-emerald-400 transition">Ana Facturación</p>
                 <p className="text-[10px] text-slate-500">facturador@concesionaria.com</p>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 FACTURADOR
               </span>
             </button>

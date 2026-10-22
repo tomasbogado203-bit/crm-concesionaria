@@ -6,8 +6,8 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Servidor CRM Concesionaria corriendo en http://localhost:${PORT}`);
-  console.log(`📡 Endpoints disponibles:`);
+  console.log(`[INFO] Servidor CRM Concesionaria en ejecucion en http://localhost:${PORT}`);
+  console.log(`[INFO] Endpoints disponibles:`);
   console.log(`   - POST /auth/registro`);
   console.log(`   - POST /auth/login`);
   console.log(`   - GET  /clientes`);

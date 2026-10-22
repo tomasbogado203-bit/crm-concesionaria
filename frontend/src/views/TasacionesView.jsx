@@ -14,7 +14,7 @@ import {
   Search,
   DollarSign,
   ArrowRight,
-  Sparkles,
+  Warehouse,
   Gauge,
   X,
 } from 'lucide-react';
@@ -244,7 +244,7 @@ export const TasacionesView = () => {
       case 'INGRESADO_STOCK':
         return (
           <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" /> En Stock Usados
+            <Warehouse className="w-3.5 h-3.5" /> En Stock Usados
           </span>
         );
       case 'RECHAZADA':
@@ -304,7 +304,7 @@ export const TasacionesView = () => {
         <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
           <div className="flex items-center justify-between text-slate-400 mb-3">
             <span className="text-xs font-medium">Incorporados al Catálogo</span>
-            <Sparkles className="w-4 h-4 text-purple-400" />
+            <Warehouse className="w-4 h-4 text-purple-400" />
           </div>
           <p className="text-2xl font-bold text-purple-400">{cargando ? '...' : enStock}</p>
           <p className="text-[11px] text-slate-500 mt-1">Autos usados en stock disponible</p>

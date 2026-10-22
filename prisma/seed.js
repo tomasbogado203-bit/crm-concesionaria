@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Inicializando datos maestros y matriz de permisos...');
+  console.log('[INFO] Inicializando datos maestros y matriz de permisos...');
 
   // 1. Roles de Contacto (Clasificación comercial)
   const rolesContacto = ['Cliente', 'Proveedor', 'Empleado'];
@@ -14,7 +14,7 @@ async function main() {
       create: { descripcionRol: rolDesc },
     });
   }
-  console.log('✅ Roles de contacto creados.');
+  console.log('[OK] Roles de contacto creados.');
 
   // 2. Perfiles de Usuario
   const perfilesData = [
@@ -33,7 +33,7 @@ async function main() {
     });
     perfilesMap[p.nombre] = perfil;
   }
-  console.log('✅ Perfiles del sistema registrados.');
+  console.log('[OK] Perfiles del sistema registrados.');
 
   // 3. Estructura de Menús y Programas de Acción (PRG)
   const estructuraMenus = [
@@ -209,7 +209,7 @@ async function main() {
       });
     }
   }
-  console.log('✅ Matriz de permisos vinculada en perfiles_menus_prg con éxito.');
+  console.log('[OK] Matriz de permisos vinculada en perfiles_menus_prg con éxito.');
 
   // 5. Vincular al usuario vendedor de prueba (carlos@concesionaria.com) con el perfil VENDEDOR
   const usuarioCarlos = await prisma.usuario.findUnique({
@@ -230,10 +230,10 @@ async function main() {
         perfilId: perfilesMap['VENDEDOR'].id,
       },
     });
-    console.log('✅ Perfil VENDEDOR asignado al usuario Carlos.');
+    console.log('[OK] Perfil VENDEDOR asignado al usuario Carlos.');
   }
 
-  console.log('🚀 Seed completo finalizado correctamente.');
+  console.log('[OK] Seed completo finalizado correctamente.');
 }
 
 main()
