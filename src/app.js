@@ -5,10 +5,11 @@ import { manejadorErrores } from './middlewares/error.middleware.js';
 
 const app = express();
 
-// CORS: en desarrollo acepta cualquier origen; en producción usa CORS_ORIGIN del .env
+// Configuración de CORS estricta: permite únicamente el origen real del frontend
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // la URL real del frontend
+    credentials: true, // solo si mandás cookies o headers de autenticación
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })

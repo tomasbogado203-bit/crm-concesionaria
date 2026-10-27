@@ -8,7 +8,13 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
-  "keywords": ["crm", "express", "prisma", "mysql", "concesionaria"],
+  "keywords": [
+    "crm",
+    "express",
+    "prisma",
+    "mysql",
+    "concesionaria"
+  ],
   "author": "Equipo 3",
   "license": "ISC",
   "dependencies": {
@@ -17,6 +23,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
+    "express-rate-limit": "^8.7.1",
     "jsonwebtoken": "^9.0.2",
     "zod": "^3.23.8"
   },
