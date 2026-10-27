@@ -98,7 +98,6 @@ export const TasacionesView = () => {
       });
 
       setModalSolicitar(false);
-      // Reset
       setClienteId('');
       setDominio('');
       setMarca('');
@@ -209,15 +208,15 @@ export const TasacionesView = () => {
   const renderBadgeCalidad = (calidad) => {
     switch (calidad) {
       case 'EXCELENTE':
-        return <span className="px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">Excelente</span>;
+        return <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">Excelente</span>;
       case 'BUENO':
-        return <span className="px-2 py-0.5 text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded">Bueno</span>;
+        return <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">Bueno</span>;
       case 'REGULAR':
-        return <span className="px-2 py-0.5 text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded">Regular</span>;
+        return <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-full">Regular</span>;
       case 'MALO':
-        return <span className="px-2 py-0.5 text-[10px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded">Malo</span>;
+        return <span className="px-2.5 py-0.5 text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-full">Malo</span>;
       default:
-        return <span className="text-slate-500 text-xs">-</span>;
+        return <span className="text-gray-400 text-xs">-</span>;
     }
   };
 
@@ -225,31 +224,31 @@ export const TasacionesView = () => {
     switch (estado) {
       case 'SOLICITADA':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-full">
             <Clock className="w-3.5 h-3.5" /> Pendiente de Peritaje
           </span>
         );
       case 'EN_PERITAJE':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-full">
             <Wrench className="w-3.5 h-3.5" /> Peritado (Listo para Decisión)
           </span>
         );
       case 'APROBADA':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
             <CheckCircle2 className="w-3.5 h-3.5" /> Valor Aceptado
           </span>
         );
       case 'INGRESADO_STOCK':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-lg shadow-sm">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 rounded-full">
             <Warehouse className="w-3.5 h-3.5" /> En Stock Usados
           </span>
         );
       case 'RECHAZADA':
         return (
-          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-lg">
+          <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 rounded-full">
             <XCircle className="w-3.5 h-3.5" /> Rechazada
           </span>
         );
@@ -259,280 +258,243 @@ export const TasacionesView = () => {
   };
 
   return (
-    <div className="p-8 space-y-8">
-      {/* Top Banner & Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="p-8 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Wrench className="w-6 h-6 text-blue-400" />
-            Tasaciones e Inspección de Usados (Permutas)
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Gestión técnica de peritajes para vehículos tomados en parte de pago e ingreso automático al stock de usados.
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight">Tasación y Peritaje de Usados (Permutas)</h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Inspección mecánica, estimación de cotización de mercado e ingreso directo a inventario de ocasión.
           </p>
         </div>
 
         <button
           onClick={() => setModalSolicitar(true)}
-          className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow-lg shadow-blue-600/30 transition flex items-center gap-2"
+          className="px-4 py-2 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Nueva Solicitud de Tasación</span>
         </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium">Total Evaluaciones</span>
-            <Car className="w-4 h-4 text-blue-400" />
+      {/* Métricas Resumen */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
+            <Car className="w-5 h-5" />
           </div>
-          <p className="text-2xl font-bold text-white">{cargando ? '...' : total}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Vehículos de clientes peritados</p>
+          <div>
+            <span className="text-[11px] text-gray-500 block font-medium">Total Solicitadas</span>
+            <span className="text-lg font-bold text-gray-900">{total}</span>
+          </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium">Pendientes de Resolución</span>
-            <Clock className="w-4 h-4 text-amber-400" />
+        <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <Clock className="w-5 h-5" />
           </div>
-          <p className="text-2xl font-bold text-amber-400">{cargando ? '...' : pendientes}</p>
-          <p className="text-[11px] text-slate-500 mt-1">En proceso de cotización</p>
+          <div>
+            <span className="text-[11px] text-gray-500 block font-medium">Por Peritar / Decidir</span>
+            <span className="text-lg font-bold text-amber-700">{pendientes}</span>
+          </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium">Incorporados al Catálogo</span>
-            <Warehouse className="w-4 h-4 text-purple-400" />
+        <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center">
+            <Warehouse className="w-5 h-5" />
           </div>
-          <p className="text-2xl font-bold text-purple-400">{cargando ? '...' : enStock}</p>
-          <p className="text-[11px] text-slate-500 mt-1">Autos usados en stock disponible</p>
+          <div>
+            <span className="text-[11px] text-gray-500 block font-medium">Ingresadas al Stock</span>
+            <span className="text-lg font-bold text-purple-700">{enStock}</span>
+          </div>
         </div>
 
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-          <div className="flex items-center justify-between text-slate-400 mb-3">
-            <span className="text-xs font-medium">Monto Total en Permutas</span>
-            <DollarSign className="w-4 h-4 text-emerald-400" />
+        <div className="bg-white border border-gray-200/80 rounded-2xl p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+            <DollarSign className="w-5 h-5" />
           </div>
-          <p className="text-2xl font-bold text-emerald-400">
-            {cargando ? '...' : `$${montoPermutas.toLocaleString('es-AR')}`}
-          </p>
-          <p className="text-[11px] text-slate-500 mt-1">Valor de toma acordado con clientes</p>
+          <div>
+            <span className="text-[11px] text-gray-500 block font-medium">Capital Tomado en Permutas</span>
+            <span className="text-lg font-bold text-emerald-600 font-mono">
+              ${(montoPermutas / 1000000).toFixed(1)}M
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Filtros y Búsqueda */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          {['TODOS', 'PENDIENTES', 'APROBADAS', 'RECHAZADA'].map((tab) => (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-1.5 bg-gray-100 border border-gray-200 p-1 rounded-xl w-full sm:w-auto">
+          {['TODOS', 'PENDIENTES', 'APROBADAS', 'RECHAZADAS'].map((f) => (
             <button
-              key={tab}
-              onClick={() => setFiltroEstado(tab)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                filtroEstado === tab
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+              key={f}
+              onClick={() => setFiltroEstado(f)}
+              className={`flex-1 sm:flex-none px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                filtroEstado === f
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              {tab === 'TODOS'
-                ? 'Todos'
-                : tab === 'PENDIENTES'
-                ? 'Pendientes / En Peritaje'
-                : tab === 'APROBADAS'
-                ? 'Aprobadas / En Stock'
+              {f === 'TODOS'
+                ? 'Todas'
+                : f === 'PENDIENTES'
+                ? 'En Proceso'
+                : f === 'APROBADAS'
+                ? 'Aceptadas / Stock'
                 : 'Rechazadas'}
             </button>
           ))}
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+        <div className="flex items-center gap-2.5 bg-white border border-gray-200/90 rounded-xl px-3 py-2 w-full sm:w-72 shadow-2xs">
+          <Search className="w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar por auto, patente o cliente..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition"
+            placeholder="Buscar por auto, patente o cliente..."
+            className="w-full bg-transparent text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none"
           />
         </div>
       </div>
 
-      {/* Lista de Tasaciones */}
-      {cargando ? (
-        <div className="p-12 text-center text-slate-500 text-sm">Cargando tasaciones y permutas...</div>
-      ) : tasacionesFiltradas.length === 0 ? (
-        <div className="p-12 text-center bg-slate-900/40 border border-slate-800/80 rounded-2xl">
-          <Car className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-white">No se encontraron tasaciones</p>
-          <p className="text-xs text-slate-500 mt-1">
-            Iniciá una nueva solicitud de tasación para peritar el usado de un cliente.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {tasacionesFiltradas.map((t) => {
-            const nombreCliente = t.cliente
-              ? t.cliente.tipoPersona === 'FISICA'
-                ? `${t.cliente.nombres} ${t.cliente.apellido || ''}`
-                : t.cliente.razonSocial || t.cliente.nombres
-              : 'Cliente';
-
-            return (
-              <div
-                key={t.id}
-                className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 hover:border-slate-700 transition"
-              >
-                {/* Cabecera Tarjeta */}
+      {/* Grid de Tasaciones */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {cargando ? (
+          <p className="text-xs text-gray-500 col-span-2">Cargando peritajes y tasaciones...</p>
+        ) : tasacionesFiltradas.length === 0 ? (
+          <div className="col-span-2 bg-white border border-gray-200/80 rounded-2xl p-12 text-center text-gray-500 shadow-xs">
+            No se encontraron tasaciones con los filtros indicados.
+          </div>
+        ) : (
+          tasacionesFiltradas.map((t) => (
+            <div
+              key={t.id}
+              className="bg-white border border-gray-200/80 rounded-2xl p-5 space-y-4 hover:shadow-md hover:border-gray-300 transition flex flex-col justify-between shadow-xs"
+            >
+              <div className="space-y-3">
+                {/* Header Card */}
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-xs font-mono font-bold bg-slate-950 text-amber-400 border border-slate-800 rounded">
+                      <h3 className="text-base font-bold text-gray-900">
+                        {t.marca} {t.modelo}
+                      </h3>
+                      <span className="px-2 py-0.5 rounded-full bg-gray-100 font-mono font-bold text-[11px] text-gray-800 border border-gray-200">
                         {t.dominio}
                       </span>
-                      <h3 className="font-bold text-base text-white">
-                        {t.marca} {t.modelo} {t.version ? `(${t.version})` : ''}
-                      </h3>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 flex items-center gap-3">
-                      <span>Año: <strong>{t.anio}</strong></span>
-                      <span>•</span>
-                      <span>Km: <strong>{t.kilometraje.toLocaleString('es-AR')} km</strong></span>
-                      <span>•</span>
-                      <span>Combustible: <strong>{t.combustible}</strong></span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {t.version || 'Base'} · Año {t.anio} · {Number(t.kilometraje).toLocaleString('es-AR')} km · {t.combustible}
                     </p>
                   </div>
-                  <div>{renderBadgeEstado(t.estado)}</div>
+                  {renderBadgeEstado(t.estado)}
                 </div>
 
-                {/* Cliente y Vendedor */}
-                <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-blue-400 font-bold">
-                      {nombreCliente[0]}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-200">{nombreCliente}</p>
-                      <p className="text-[11px] text-slate-500">
-                        {t.cliente?.telefono || t.cliente?.email || 'Sin contacto directo'}
-                      </p>
-                    </div>
+                {/* Cliente */}
+                <div className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50/70 p-2.5 rounded-xl border border-gray-100">
+                  <User className="w-3.5 h-3.5 text-gray-500" />
+                  <span>Titular: <strong>{t.cliente?.nombres} {t.cliente?.apellido || t.cliente?.razonSocial}</strong></span>
+                  <span className="text-gray-400">· DNI: {t.cliente?.numeroDni}</span>
+                </div>
+
+                {/* Checklist Peritaje Técnico */}
+                <div className="grid grid-cols-4 gap-2 pt-1 text-center">
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-2 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-semibold">Carrocería</span>
+                    {renderBadgeCalidad(t.estadoCarroceria)}
                   </div>
-                  <div className="text-right">
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block">Vendedor</span>
-                    <span className="text-slate-300 font-medium">{t.usuario?.nombreUsuario || 'Asignado'}</span>
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-2 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-semibold">Pintura</span>
+                    {renderBadgeCalidad(t.estadoPintura)}
+                  </div>
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-2 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-semibold">Mecánica</span>
+                    {renderBadgeCalidad(t.estadoMecanica)}
+                  </div>
+                  <div className="bg-gray-50/70 border border-gray-100 rounded-xl p-2 space-y-1">
+                    <span className="text-[10px] text-gray-400 block font-semibold">Cubiertas</span>
+                    {renderBadgeCalidad(t.estadoCubiertas)}
                   </div>
                 </div>
 
-                {/* Peritaje Técnico de 4 Puntos */}
-                <div className="space-y-2">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-                    Inspección Técnica de Peritaje
-                  </span>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <div className="bg-slate-950/50 p-2 rounded-lg border border-slate-800/60">
-                      <span className="text-[10px] text-slate-500 block">Carrocería</span>
-                      {renderBadgeCalidad(t.estadoCarroceria)}
-                    </div>
-                    <div className="bg-slate-950/50 p-2 rounded-lg border border-slate-800/60">
-                      <span className="text-[10px] text-slate-500 block">Pintura</span>
-                      {renderBadgeCalidad(t.estadoPintura)}
-                    </div>
-                    <div className="bg-slate-950/50 p-2 rounded-lg border border-slate-800/60">
-                      <span className="text-[10px] text-slate-500 block">Mecánica</span>
-                      {renderBadgeCalidad(t.estadoMecanica)}
-                    </div>
-                    <div className="bg-slate-950/50 p-2 rounded-lg border border-slate-800/60">
-                      <span className="text-[10px] text-slate-500 block">Cubiertas</span>
-                      {renderBadgeCalidad(t.estadoCubiertas)}
-                    </div>
+                {/* Observaciones técnicas */}
+                {t.detallesPeritaje && (
+                  <p className="text-xs text-gray-600 italic bg-gray-50/60 p-2.5 rounded-xl border border-gray-100">
+                    "{t.detallesPeritaje}"
+                  </p>
+                )}
+
+                {/* Precios y Ofertas */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50/80 border border-gray-100 text-xs">
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Valor Tasación Técnica</span>
+                    <span className="font-bold text-gray-800 text-sm font-mono">
+                      {t.valorTasado ? `$${Number(t.valorTasado).toLocaleString('es-AR')}` : 'Sin tasar'}
+                    </span>
                   </div>
-                  {t.detallesPeritaje && (
-                    <p className="text-xs text-slate-400 bg-slate-950/30 p-2.5 rounded-lg border border-slate-800/40 italic">
-                      "{t.detallesPeritaje}"
-                    </p>
+                  {t.valorAceptado && (
+                    <div className="text-right">
+                      <span className="text-[10px] text-emerald-700 uppercase tracking-wider block font-semibold">Valor Definitivo Tomado</span>
+                      <span className="font-extrabold text-emerald-600 text-base font-mono">
+                        ${Number(t.valorAceptado).toLocaleString('es-AR')}
+                      </span>
+                    </div>
                   )}
                 </div>
-
-                {/* Valores Económicos y Acciones */}
-                <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] text-slate-500 uppercase font-bold block">
-                      {t.estado === 'APROBADA' || t.estado === 'INGRESADO_STOCK'
-                        ? 'Valor Acordado de Permuta'
-                        : 'Valor Estimado / Tasado'}
-                    </span>
-                    <span className="text-base font-bold text-emerald-400">
-                      {t.valorAceptado
-                        ? `$${Number(t.valorAceptado).toLocaleString('es-AR')}`
-                        : t.valorTasado
-                        ? `$${Number(t.valorTasado).toLocaleString('es-AR')}`
-                        : 'Pendiente de tasación'}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {t.estado === 'SOLICITADA' && (
-                      <button
-                        onClick={() => abrirModalPeritaje(t)}
-                        className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-blue-600/20"
-                      >
-                        <Wrench className="w-3.5 h-3.5" />
-                        <span>Cargar Peritaje</span>
-                      </button>
-                    )}
-
-                    {t.estado === 'EN_PERITAJE' && (
-                      <button
-                        onClick={() => abrirModalResolver(t)}
-                        className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
-                      >
-                        <CheckSquare className="w-3.5 h-3.5" />
-                        <span>Aprobar / Resolver</span>
-                      </button>
-                    )}
-
-                    {(t.estado === 'APROBADA' || t.estado === 'INGRESADO_STOCK') && (
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                        Operación Concluida
-                      </span>
-                    )}
-                  </div>
-                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              {/* Botones de Acción */}
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+                {(t.estado === 'SOLICITADA' || t.estado === 'EN_PERITAJE') && (
+                  <button
+                    onClick={() => abrirModalPeritaje(t)}
+                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                  >
+                    <Wrench className="w-3.5 h-3.5 text-gray-500" />
+                    <span>{t.estado === 'SOLICITADA' ? 'Cargar Peritaje' : 'Modificar Peritaje'}</span>
+                  </button>
+                )}
+
+                {t.estado === 'EN_PERITAJE' && (
+                  <button
+                    onClick={() => abrirModalResolver(t)}
+                    className="px-4 py-1.5 rounded-xl bg-[#18181b] hover:bg-black text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+                  >
+                    <CheckSquare className="w-3.5 h-3.5" />
+                    <span>Tomar Decisión Comercial</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
       {/* MODAL 1: Solicitar Tasación */}
       {modalSolicitar && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Car className="w-5 h-5 text-blue-400" />
-                Nueva Solicitud de Tasación
-              </h3>
-              <button onClick={() => setModalSolicitar(false)} className="text-slate-500 hover:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white border border-gray-200/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative my-6">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <h3 className="text-sm font-bold text-gray-900">Solicitud de Tasación para Permuta</h3>
+              <button onClick={() => setModalSolicitar(false)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSolicitar} className="space-y-4">
+            <form onSubmit={handleSolicitar} className="space-y-3.5">
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">Cliente Solicitante *</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Cliente Propietario *</label>
                 <select
                   required
                   value={clienteId}
                   onChange={(e) => setClienteId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
                 >
-                  <option value="">Seleccione un cliente registrado...</option>
+                  <option value="">Seleccione un cliente...</option>
                   {clientes.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.tipoPersona === 'FISICA' ? `${c.nombres} ${c.apellido || ''}` : c.razonSocial} (DNI/CUIT: {c.numeroDni})
+                      {c.nombres} {c.apellido || c.razonSocial} (DNI/CUIT: {c.numeroDni})
                     </option>
                   ))}
                 </select>
@@ -540,118 +502,119 @@ export const TasacionesView = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Patente / Dominio *</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Dominio / Patente *</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ej: AA123BB o AB123CD"
                     value={dominio}
                     onChange={(e) => setDominio(e.target.value.toUpperCase())}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white uppercase focus:outline-none focus:border-blue-500"
+                    placeholder="AF123CD"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 font-mono uppercase focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Año de Fabricación *</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Año de Fabricación *</label>
                   <input
                     type="number"
                     required
-                    min={1990}
-                    max={new Date().getFullYear() + 1}
                     value={anio}
                     onChange={(e) => setAnio(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Marca *</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Marca *</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ej: Ford, Volkswagen, Toyota"
                     value={marca}
                     onChange={(e) => setMarca(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    placeholder="Volkswagen"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Modelo *</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Modelo *</label>
                   <input
                     type="text"
                     required
-                    placeholder="Ej: Focus, Gol Trend, Corolla"
                     value={modelo}
                     onChange={(e) => setModelo(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    placeholder="Gol Trend"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Versión</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Versión</label>
                   <input
                     type="text"
-                    placeholder="Ej: 1.6 SE Plus"
                     value={version}
                     onChange={(e) => setVersion(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    placeholder="Trendline 1.6 5P"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Kilometraje *</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Kilometraje *</label>
                   <input
                     type="number"
                     required
-                    min={0}
-                    placeholder="Ej: 85000"
                     value={kilometraje}
                     onChange={(e) => setKilometraje(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    placeholder="75000"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Combustible</label>
-                  <select
-                    value={combustible}
-                    onChange={(e) => setCombustible(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-                  >
-                    <option value="NAFTA">Nafta</option>
-                    <option value="DIESEL">Diésel</option>
-                    <option value="GNC">GNC</option>
-                    <option value="HIBRIDO">Híbrido</option>
-                  </select>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">Observaciones Iniciales</label>
-                <textarea
-                  rows={2}
-                  placeholder="Detalles provistos por el cliente, estado de papeles, titularidad..."
-                  value={detallesIniciales}
-                  onChange={(e) => setDetallesIniciales(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 custom-scrollbar"
-                />
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Tipo de Combustible</label>
+                <select
+                  value={combustible}
+                  onChange={(e) => setCombustible(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
+                >
+                  <option value="NAFTA">Nafta</option>
+                  <option value="DIESEL">Diésel</option>
+                  <option value="GNC">Nafta / GNC</option>
+                  <option value="HIBRIDO">Híbrido</option>
+                  <option value="ELECTRICO">100% Eléctrico</option>
+                </select>
               </div>
 
-              <div className="pt-2 flex justify-end gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Detalles y Estado General manifestado por el Cliente
+                </label>
+                <textarea
+                  rows="2"
+                  value={detallesIniciales}
+                  onChange={(e) => setDetallesIniciales(e.target.value)}
+                  placeholder="Único dueño, services al día, pequeño roce en paragolpe trasero..."
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setModalSolicitar(false)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoSolicitud}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/30 transition"
+                  className="px-4 py-2 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {guardandoSolicitud ? 'Guardando...' : 'Crear Solicitud'}
+                  {guardandoSolicitud ? 'Registrando...' : 'Generar Solicitud'}
                 </button>
               </div>
             </form>
@@ -659,126 +622,120 @@ export const TasacionesView = () => {
         </div>
       )}
 
-      {/* MODAL 2: Peritaje Técnico */}
+      {/* MODAL 2: Cargar Peritaje Técnico */}
       {modalPeritaje && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Wrench className="w-5 h-5 text-blue-400" />
-                  Peritaje Técnico de Inspección
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Vehículo: <strong>{modalPeritaje.marca} {modalPeritaje.modelo}</strong> ({modalPeritaje.dominio})
-                </p>
-              </div>
-              <button onClick={() => setModalPeritaje(null)} className="text-slate-500 hover:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white border border-gray-200/80 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative my-6">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <h3 className="text-sm font-bold text-gray-900">Informe de Peritaje Técnico Mecánico</h3>
+              <button onClick={() => setModalPeritaje(null)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            <p className="text-xs text-gray-600 mb-4">
+              Unidad: <strong className="text-gray-900">{modalPeritaje.marca} {modalPeritaje.modelo} ({modalPeritaje.dominio})</strong>
+            </p>
+
             <form onSubmit={handlePeritaje} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Estado Carrocería</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Estado Carrocería</label>
                   <select
                     value={estadoCarroceria}
                     onChange={(e) => setEstadoCarroceria(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
                   >
                     <option value="EXCELENTE">Excelente (Sin golpes)</option>
-                    <option value="BUENO">Bueno (Desgaste habitual)</option>
-                    <option value="REGULAR">Regular (Bollos / Rayones)</option>
+                    <option value="BUENO">Bueno (Desgaste normal)</option>
+                    <option value="REGULAR">Regular (Bollos menores)</option>
                     <option value="MALO">Malo (Golpe estructural)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Estado Pintura</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Estado Pintura</label>
                   <select
                     value={estadoPintura}
                     onChange={(e) => setEstadoPintura(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
                   >
                     <option value="EXCELENTE">Excelente (Original)</option>
-                    <option value="BUENO">Bueno</option>
-                    <option value="REGULAR">Regular (Repintado parcial)</option>
-                    <option value="MALO">Malo (Quemada / Saltada)</option>
+                    <option value="BUENO">Bueno (Rayas superficiales)</option>
+                    <option value="REGULAR">Regular (Piezas repintadas)</option>
+                    <option value="MALO">Malo (Laca quemada / óxido)</option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Mecánica / Motor</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Estado Mecánica</label>
                   <select
                     value={estadoMecanica}
                     onChange={(e) => setEstadoMecanica(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
                   >
-                    <option value="EXCELENTE">Excelente (Sin pérdidas ni ruidos)</option>
-                    <option value="BUENO">Bueno (Mantenimiento al día)</option>
-                    <option value="REGULAR">Regular (Requiere service)</option>
-                    <option value="MALO">Malo (Fallas mayores)</option>
+                    <option value="EXCELENTE">Excelente (Sin ruidos / fugas)</option>
+                    <option value="BUENO">Bueno (Próximo a service)</option>
+                    <option value="REGULAR">Regular (Tren del. / embrague)</option>
+                    <option value="MALO">Malo (Falla grave motor/caja)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300 block mb-1">Cubiertas / Neumáticos</label>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Estado Cubiertas</label>
                   <select
                     value={estadoCubiertas}
                     onChange={(e) => setEstadoCubiertas(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer"
                   >
-                    <option value="EXCELENTE">Excelente (&gt; 80% vida útil)</option>
-                    <option value="BUENO">Bueno (50% vida útil)</option>
-                    <option value="REGULAR">Regular (Próximo a cambio)</option>
-                    <option value="MALO">Malo (Desgastadas)</option>
+                    <option value="EXCELENTE">Excelente (+80% dibujo)</option>
+                    <option value="BUENO">Bueno (50% dibujo)</option>
+                    <option value="REGULAR">Regular (Llegando al testigo)</option>
+                    <option value="MALO">Malo (Para cambiar urgente)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">
-                  Valuación Propuesta de Toma ($ ARS) *
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Dictamen Pericial y Detalles Técnicos *
                 </label>
-                <div className="relative">
-                  <DollarSign className="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="number"
-                    required
-                    min={1}
-                    placeholder="Ej: 14500000"
-                    value={valorTasado}
-                    onChange={(e) => setValorTasado(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-emerald-400 font-bold focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <p className="text-[11px] text-slate-500 mt-1">Valor de referencia según tabla y condición técnica.</p>
+                <textarea
+                  rows="3"
+                  required
+                  value={detallesPeritaje}
+                  onChange={(e) => setDetallesPeritaje(e.target.value)}
+                  placeholder="Detallar condiciones encontradas durante el testeo y elevación..."
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                ></textarea>
               </div>
 
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">Informe y Detalle Técnico</label>
-                <textarea
-                  rows={3}
-                  placeholder="Detallar reparaciones requeridas para reacondicionamiento comercial..."
-                  value={detallesPeritaje}
-                  onChange={(e) => setDetallesPeritaje(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 custom-scrollbar"
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Valor Estimado de Tasación Comercial ($) *
+                </label>
+                <input
+                  type="number"
+                  required
+                  value={valorTasado}
+                  onChange={(e) => setValorTasado(e.target.value)}
+                  placeholder="14500000"
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 font-mono focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setModalPeritaje(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoPeritaje}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-md shadow-blue-600/30 transition"
+                  className="px-4 py-2 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer"
                 >
                   {guardandoPeritaje ? 'Guardando...' : 'Guardar Peritaje'}
                 </button>
@@ -788,53 +745,46 @@ export const TasacionesView = () => {
         </div>
       )}
 
-      {/* MODAL 3: Aprobar / Resolver Tasación */}
+      {/* MODAL 3: Decisión Comercial / Resolver */}
       {modalResolver && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5 text-emerald-400" />
-                  Resolución de Permuta Comercial
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Vehículo: <strong>{modalResolver.marca} {modalResolver.modelo}</strong> ({modalResolver.dominio})
-                </p>
-              </div>
-              <button onClick={() => setModalResolver(null)} className="text-slate-500 hover:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border border-gray-200/80 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <h3 className="text-sm font-bold text-gray-900">Decisión Comercial de Toma</h3>
+              <button onClick={() => setModalResolver(null)} className="text-gray-400 hover:text-gray-700 cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
+            <p className="text-xs text-gray-600 mb-4">
+              Resolver negociación con <strong className="text-gray-900">{modalResolver.cliente?.nombres}</strong> por su <strong className="text-gray-900">{modalResolver.marca} {modalResolver.modelo}</strong>.
+            </p>
+
             <form onSubmit={handleResolver} className="space-y-4">
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">Decisión Comercial</label>
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">Resolución</label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setDecision('APROBADA')}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                    className={`py-2 text-xs font-semibold rounded-xl border transition flex items-center justify-center gap-1.5 cursor-pointer ${
                       decision === 'APROBADA'
-                        ? 'bg-emerald-600/20 border-emerald-500 text-emerald-400 shadow-md shadow-emerald-600/20'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800'
+                        ? 'bg-[#18181b] border-[#18181b] text-white shadow-xs'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Aprobar Permuta</span>
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Aceptar Permuta
                   </button>
-
                   <button
                     type="button"
                     onClick={() => setDecision('RECHAZADA')}
-                    className={`py-2 px-3 rounded-xl border text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                    className={`py-2 text-xs font-semibold rounded-xl border transition flex items-center justify-center gap-1.5 cursor-pointer ${
                       decision === 'RECHAZADA'
-                        ? 'bg-rose-600/20 border-rose-500 text-rose-400 shadow-md shadow-rose-600/20'
-                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800'
+                        ? 'bg-rose-600 border-rose-600 text-white shadow-xs'
+                        : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    <XCircle className="w-4 h-4" />
-                    <span>Rechazar Toma</span>
+                    <XCircle className="w-3.5 h-3.5" /> Rechazar
                   </button>
                 </div>
               </div>
@@ -842,60 +792,54 @@ export const TasacionesView = () => {
               {decision === 'APROBADA' && (
                 <>
                   <div>
-                    <label className="text-xs font-medium text-slate-300 block mb-1">
-                      Valor Final de Toma Acordado ($ ARS) *
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Monto Definitivo Acordado con el Cliente ($) *
                     </label>
-                    <div className="relative">
-                      <DollarSign className="w-4 h-4 text-emerald-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="number"
-                        required
-                        min={1}
-                        value={valorAceptado}
-                        onChange={(e) => setValorAceptado(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-emerald-400 font-bold focus:outline-none focus:border-emerald-500"
-                      />
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Este monto se computará como crédito / pago en la oportunidad o factura del cliente.
+                    <input
+                      type="number"
+                      required
+                      value={valorAceptado}
+                      onChange={(e) => setValorAceptado(e.target.value)}
+                      placeholder="14000000"
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 font-mono focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    />
+                    <p className="text-[10px] text-gray-400 mt-1">
+                      Valor tasado por el perito: ${Number(modalResolver.valorTasado || 0).toLocaleString('es-AR')}
                     </p>
                   </div>
 
-                  <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 flex items-start gap-3">
+                  <div className="bg-gray-50/70 p-3 rounded-xl border border-gray-100 flex items-center gap-3">
                     <input
                       type="checkbox"
-                      id="ingresarAStock"
+                      id="stockCheck"
                       checked={ingresarAStock}
                       onChange={(e) => setIngresarAStock(e.target.checked)}
-                      className="mt-0.5 rounded text-blue-600 focus:ring-0 bg-slate-900 border-slate-700"
+                      className="w-4 h-4 rounded text-gray-900 focus:ring-gray-900 border-gray-300"
                     />
-                    <label htmlFor="ingresarAStock" className="text-xs text-slate-300 cursor-pointer">
-                      <strong>Ingresar automáticamente al catálogo de usados:</strong> El vehículo se dará de alta
-                      en stock como <span className="text-emerald-400 font-semibold">DISPONIBLE</span> con precio sugerido
-                      de reventa del 25% sobre el valor de toma.
+                    <label htmlFor="stockCheck" className="text-xs text-gray-700 cursor-pointer">
+                      <strong>Dar de alta automáticamente en el catálogo de stock de Usados</strong>
+                      <span className="block text-[10px] text-gray-500">
+                        Crea el registro de vehículo listo para la venta y exhibición.
+                      </span>
                     </label>
                   </div>
                 </>
               )}
 
-              <div className="pt-2 flex justify-end gap-3">
+              <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
                 <button
                   type="button"
                   onClick={() => setModalResolver(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl transition"
+                  className="px-4 py-2 rounded-xl text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={guardandoResolucion}
-                  className={`px-4 py-2 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-md transition ${
-                    decision === 'APROBADA'
-                      ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
-                      : 'bg-rose-600 hover:bg-rose-500 shadow-rose-600/30'
-                  }`}
+                  className="px-4 py-2 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold shadow-xs disabled:opacity-50 cursor-pointer"
                 >
-                  {guardandoResolucion ? 'Procesando...' : 'Confirmar Decisión'}
+                  {guardandoResolucion ? 'Procesando...' : 'Confirmar Resolución'}
                 </button>
               </div>
             </form>

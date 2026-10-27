@@ -104,11 +104,11 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="flex h-screen bg-[#f0f2f5] text-slate-800 overflow-hidden font-sans">
       <Sidebar vistaActiva={vistaActiva} setVistaActiva={setVistaActiva} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Navbar titulo={vistaActiva} onNavigate={setVistaActiva} />
-        <main className="flex-1 overflow-y-auto custom-scrollbar bg-slate-950">
+        <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#f0f2f5]">
           {renderVista()}
         </main>
       </div>
