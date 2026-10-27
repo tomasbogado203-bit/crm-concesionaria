@@ -126,12 +126,25 @@ export const emitirFactura = async (datos, usuarioId) => {
       },
     });
 
-    // Si viene de una oportunidad, marcarla como GANADA
+    // Si viene de una oportunidad, marcarla como GANADA e imputar la seña previa si existía
     if (datos.oportunidadId) {
+      const op = await tx.oportunidad.findUnique({ where: { id: datos.oportunidadId } });
       await tx.oportunidad.update({
         where: { id: datos.oportunidadId },
         data: { etapa: 'GANADA' },
       });
+
+      // Imputar automáticamente la seña como pago inicial de la factura
+      if (op && op.montoSenia && Number(op.montoSenia) > 0) {
+        await tx.pagoCobro.create({
+          data: {
+            facturaId: nuevaFactura.id,
+            metodoPago: op.metodoPagoSenia || 'TRANSFERENCIA',
+            monto: op.montoSenia,
+            nroComprobante: op.comprobantePagoSenia ? `Seña previa: ${op.comprobantePagoSenia}` : `Seña Boleto ${op.nroReciboSenia || ''}`,
+          },
+        });
+      }
     }
 
     // Para cada vehículo facturado, marcarlo como VENDIDO en stock

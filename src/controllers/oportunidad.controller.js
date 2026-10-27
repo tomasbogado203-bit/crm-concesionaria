@@ -41,3 +41,22 @@ export const cambiarEtapa = async (req, res, next) => {
     next(error);
   }
 };
+
+export const registrarSenia = async (req, res, next) => {
+  try {
+    const esAdmin = req.user?.perfiles?.includes('ADMIN');
+    const actualizada = await oportunidadService.registrarSenia(
+      req.params.id,
+      req.body,
+      req.user.id,
+      esAdmin
+    );
+    res.status(200).json({
+      mensaje: 'Seña y reserva de unidad registradas con éxito',
+      oportunidad: actualizada,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

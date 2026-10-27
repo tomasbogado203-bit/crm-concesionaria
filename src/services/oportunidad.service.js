@@ -144,3 +144,82 @@ export const cambiarEtapa = async (id, nuevaEtapa, usuarioId, esAdmin = false, m
   });
 };
 
+export const registrarSenia = async (id, datos, usuarioId, esAdmin = false) => {
+  const oportunidad = await prisma.oportunidad.findUnique({
+    where: { id: Number(id) },
+    include: { vehiculo: true, cliente: true },
+  });
+
+  if (!oportunidad) {
+    const error = new Error('Oportunidad no encontrada');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!esAdmin && oportunidad.usuarioId !== Number(usuarioId)) {
+    const error = new Error('No tiene permisos para modificar esta oportunidad');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  const montoSenia = Number(datos.montoSenia);
+  const precioVehiculo = Number(oportunidad.vehiculo?.precioVenta || oportunidad.montoEstimado);
+  if (montoSenia > precioVehiculo) {
+    const error = new Error('El monto de la seña no puede superar el valor total del vehículo');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // Si no se especifica fecha de vencimiento, por regla de negocio son 72 hs hábiles (3 días)
+  const fechaVencimiento = datos.fechaVencimiento
+    ? new Date(datos.fechaVencimiento)
+    : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+
+  const nroReciboSenia = `RES-${String(oportunidad.id).padStart(4, '0')}-${Date.now().toString().slice(-4)}`;
+
+  // 1. Bloquear el vehículo en stock
+  await prisma.vehiculo.update({
+    where: { id: oportunidad.vehiculoId },
+    data: { estado: 'RESERVADO' },
+  });
+
+  // 2. Registrar en la bitácora del cliente la interacción automática
+  try {
+    await prisma.interaccion.create({
+      data: {
+        clienteId: oportunidad.clienteId,
+        usuarioId: Number(usuarioId),
+        canal: 'VISITA_SALON',
+        resumen: `Seña registrada para el vehículo ${oportunidad.vehiculo.marca} ${oportunidad.vehiculo.modelo} (${oportunidad.vehiculo.vin}). Monto recibido: $${montoSenia.toLocaleString('es-AR')} vía ${datos.metodoPago || 'TRANSFERENCIA'}. Recibo Nº ${nroReciboSenia}. Vencimiento de reserva: ${fechaVencimiento.toLocaleDateString('es-AR')}.`,
+      },
+    });
+  } catch (err) {
+    console.warn('No se pudo registrar la interacción automática:', err);
+  }
+
+  // 3. Actualizar la oportunidad con los datos de la reserva
+  return await prisma.oportunidad.update({
+    where: { id: Number(id) },
+    data: {
+      etapa: 'RESERVADO',
+      nroReciboSenia,
+      montoSenia,
+      metodoPagoSenia: datos.metodoPago || 'TRANSFERENCIA',
+      comprobantePagoSenia: datos.comprobantePago || null,
+      fechaVencimientoReserva: fechaVencimiento,
+      observacionesReserva: datos.observaciones || null,
+    },
+    include: {
+      cliente: true,
+      vehiculo: true,
+      usuario: {
+        select: {
+          id: true,
+          nombreUsuario: true,
+        },
+      },
+    },
+  });
+};
+
+

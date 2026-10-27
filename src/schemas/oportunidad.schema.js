@@ -13,3 +13,11 @@ export const cambiarEtapaSchema = z.object({
   etapa: z.enum(['PROSPECTO', 'TEST_DRIVE', 'NEGOCIACION', 'RESERVADO', 'GANADA', 'PERDIDA']),
   motivoPerdida: z.string().optional(),
 });
+
+export const registrarSeniaSchema = z.object({
+  montoSenia: z.number().positive('El monto de la seña debe ser mayor a 0'),
+  metodoPago: z.enum(['EFECTIVO', 'TRANSFERENCIA', 'CHEQUE', 'PRENDARIO', 'PERMUTA']).default('TRANSFERENCIA'),
+  comprobantePago: z.string().optional(),
+  fechaVencimiento: z.string().optional(),
+  observaciones: z.string().optional(),
+});

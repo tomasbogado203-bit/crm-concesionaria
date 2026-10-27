@@ -361,6 +361,15 @@ export const FacturacionView = () => {
                     <p className="text-[11px] text-gray-500">{op.vehiculo?.version} · {op.vehiculo?.anio}</p>
                     <p className="text-[10px] font-mono text-gray-400">VIN: {op.vehiculo?.vin}</p>
                   </div>
+
+                  {op.montoSenia && Number(op.montoSenia) > 0 && (
+                    <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs flex justify-between items-center">
+                      <span className="text-emerald-800 font-medium">Seña previa entregada:</span>
+                      <span className="font-mono font-bold text-emerald-700">
+                        ${Number(op.montoSenia).toLocaleString('es-AR')}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <button
