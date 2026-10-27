@@ -255,6 +255,20 @@ export const LoginView = () => {
           <div className="space-y-2">
             <button
               type="button"
+              onClick={() => loginRapido('admin@concesionaria.com', 'Password123')}
+              className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition cursor-pointer"
+            >
+              <div>
+                <p className="font-semibold text-white group-hover:text-purple-400 transition">Administrador General</p>
+                <p className="text-[10px] text-slate-500">admin@concesionaria.com</p>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                ADMIN (TOTAL)
+              </span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => loginRapido('carlos@concesionaria.com', 'Password123')}
               className="w-full text-left px-3.5 py-2 rounded-xl bg-slate-950 hover:bg-slate-800/80 border border-slate-800 text-xs text-slate-300 flex items-center justify-between group transition cursor-pointer"
             >

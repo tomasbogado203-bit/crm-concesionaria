@@ -233,6 +233,52 @@ async function main() {
     console.log('[OK] Perfil VENDEDOR asignado al usuario Carlos.');
   }
 
+  // 6. Asegurar usuario ADMIN con acceso total
+  let usuarioAdmin = await prisma.usuario.findUnique({
+    where: { mail: 'admin@concesionaria.com' },
+  });
+
+  if (!usuarioAdmin) {
+    const contactoAdmin = await prisma.contacto.create({
+      data: {
+        tipoPersona: 'FISICA',
+        nombres: 'Administrador',
+        apellido: 'General',
+        numeroDni: '11111111',
+        email: 'admin@concesionaria.com',
+        snActivo: true,
+      },
+    });
+
+    usuarioAdmin = await prisma.usuario.create({
+      data: {
+        contactoId: contactoAdmin.id,
+        nombreUsuario: 'admin',
+        mail: 'admin@concesionaria.com',
+        password: '$2a$10$eO0V4L5J0O7eH1e9K8mOqO.e7w6o7Zz1H7s7L9a8A9B0C1D2E3F4G', // Password123
+        sucursal: 'Casa Central',
+        snActivo: true,
+      },
+    });
+  }
+
+  if (usuarioAdmin && perfilesMap['ADMIN']) {
+    await prisma.perfilUsuario.upsert({
+      where: {
+        usuarioId_perfilId: {
+          usuarioId: usuarioAdmin.id,
+          perfilId: perfilesMap['ADMIN'].id,
+        },
+      },
+      update: {},
+      create: {
+        usuarioId: usuarioAdmin.id,
+        perfilId: perfilesMap['ADMIN'].id,
+      },
+    });
+    console.log('[OK] Perfil ADMIN asignado al usuario admin@concesionaria.com.');
+  }
+
   console.log('[OK] Seed completo finalizado correctamente.');
 }
 
