@@ -101,10 +101,8 @@ package "Módulo Contactos y Usuarios" #F8FAFC {
         - String telefono
         - String email
         - String direccion
-        + boolean esPersonaJuridica()
-        + String getNombreCompleto()
-        + void activar()
-        + void desactivar()
+        + boolean esPersonaFisica()
+        + String getIdentificacionFiscal()
     }
 
     class Usuario {
@@ -112,17 +110,16 @@ package "Módulo Contactos y Usuarios" #F8FAFC {
         - int contactoId
         - String nombreUsuario
         - String mail
-        - String password
+        - String contrasena
         - String sucursal
         - boolean snActivo
         + boolean verificarPassword(String intento)
-        + boolean tienePermiso(String codigoPrg)
+        + List<Perfil> getPerfiles()
     }
 
     class Rol {
         - int id
         - String descripcionRol
-        + String getDescripcion()
     }
 
     class ContactoRol {
@@ -132,9 +129,9 @@ package "Módulo Contactos y Usuarios" #F8FAFC {
 }
 
 ' ==========================================================
-' MÓDULO 2: SEGURIDAD, PERFILES Y MENÚS (RBAC Pizarra)
+' MÓDULO 2: SEGURIDAD Y PROGRAMAS PRG (RBAC)
 ' ==========================================================
-package "Módulo Seguridad y Menús" #F8FAFC {
+package "Módulo Seguridad RBAC" #F8FAFC {
     class Perfil {
         - int id
         - String nombrePerfil
@@ -201,9 +198,23 @@ package "Módulo Comercial Concesionaria" #F8FAFC {
         - EtapaOportunidad etapa
         - Decimal montoEstimado
         - String motivoPerdida
+        - String nroReciboSenia
+        - Decimal montoSenia
+        - MetodoPago metodoPagoSenia
         + void avanzarEtapa(EtapaOportunidad nuevaEtapa)
         + void cerrarComoGanada()
         + void cerrarComoPerdida(String motivo)
+    }
+
+    class TransicionEtapa {
+        - int id
+        - int oportunidadId
+        - EtapaOportunidad etapaOrigen
+        - EtapaOportunidad etapaDestino
+        - int usuarioId
+        - String motivo
+        - Date createdAt
+        + void registrar()
     }
 
     class Factura {
@@ -292,6 +303,8 @@ ProgramaAccion "1" -- "*" PerfilMenuPrg
 Contacto "1" --> "*" Oportunidad : "es cliente en"
 Usuario "1" --> "*" Oportunidad : "atiende"
 Vehiculo "1" --> "*" Oportunidad : "unidad de interés"
+Oportunidad "1" *-- "*" TransicionEtapa : "audita historial"
+Usuario "1" --> "*" TransicionEtapa : "ejecuta cambio"
 
 ' Facturación y Cobranzas
 Oportunidad "0..1" --> "1" Factura : "origina"

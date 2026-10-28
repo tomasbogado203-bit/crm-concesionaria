@@ -136,6 +136,7 @@ model Usuario {
   facturasEmitidas Factura[]
   pruebasManejo   PruebaManejo[]
   tasaciones      Tasacion[]
+  transicionesEtapa TransicionEtapa[]
 
   @@map("usuarios")
 }
@@ -248,14 +249,14 @@ model Vehiculo {
 
 
 model Oportunidad {
-  id              Int               @id @default(autoincrement())
-  clienteId       Int               @map("id_contacto")
-  cliente         Contacto          @relation(fields: [clienteId], references: [id])
-  usuarioId       Int               @map("id_usuario")
-  usuario         Usuario           @relation(fields: [usuarioId], references: [id])
-  vehiculoId      Int               @map("id_vehiculo")
-  vehiculo        Vehiculo          @relation(fields: [vehiculoId], references: [id])
-  etapa           EtapaOportunidad  @default(PROSPECTO)
+  id                      Int               @id @default(autoincrement())
+  clienteId               Int               @map("id_contacto")
+  cliente                 Contacto          @relation(fields: [clienteId], references: [id])
+  usuarioId               Int               @map("id_usuario")
+  usuario                 Usuario           @relation(fields: [usuarioId], references: [id])
+  vehiculoId              Int               @map("id_vehiculo")
+  vehiculo                Vehiculo          @relation(fields: [vehiculoId], references: [id])
+  etapa                   EtapaOportunidad  @default(PROSPECTO)
   montoEstimado           Decimal           @db.Decimal(12, 2) @map("monto_estimado")
   motivoPerdida           String?           @map("motivo_perdida")
 
@@ -268,12 +269,27 @@ model Oportunidad {
   observacionesReserva    String?           @db.Text @map("observaciones_reserva")
 
   createdAt               DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
 
-  facturas        Factura[]
-  tasaciones      Tasacion[]
+  facturas                Factura[]
+  tasaciones              Tasacion[]
+  transiciones            TransicionEtapa[]
 
   @@map("oportunidades")
+}
+
+model TransicionEtapa {
+  id              Int              @id @default(autoincrement())
+  oportunidadId   Int              @map("id_oportunidad")
+  oportunidad     Oportunidad      @relation(fields: [oportunidadId], references: [id], onDelete: Cascade)
+  etapaOrigen     EtapaOportunidad @map("etapa_origen")
+  etapaDestino    EtapaOportunidad @map("etapa_destino")
+  usuarioId       Int              @map("id_usuario")
+  usuario         Usuario          @relation(fields: [usuarioId], references: [id])
+  motivo          String?          @db.VarChar(255)
+  createdAt       DateTime         @default(now()) @map("created_at")
+
+  @@map("transiciones_etapa")
 }
 
 // ==========================================
@@ -434,4 +450,3 @@ model Tasacion {
 
   @@map("tasaciones")
 }
-

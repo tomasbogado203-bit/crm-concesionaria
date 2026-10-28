@@ -125,8 +125,25 @@ entity "oportunidades" as oportunidades {
     * etapa : ENUM('PROSPECTO', 'TEST_DRIVE', 'NEGOCIACION', 'RESERVADO', 'GANADA', 'PERDIDA')
     * monto_estimado : DECIMAL(12,2)
     motivo_perdida : VARCHAR(255)
+    nro_recibo_senia : VARCHAR(50)
+    monto_senia : DECIMAL(12,2)
+    metodo_pago_senia : ENUM('EFECTIVO', 'TRANSFERENCIA', 'CHEQUE', 'PRENDARIO', 'PERMUTA')
+    comprobante_pago_senia : VARCHAR(100)
+    fecha_vencimiento_reserva : DATETIME
+    observaciones_reserva : TEXT
     created_at : DATETIME
     updated_at : DATETIME
+}
+
+entity "transiciones_etapa" as transiciones_etapa {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_oportunidad : INT <<FK>>
+    * etapa_origen : ENUM('PROSPECTO', 'TEST_DRIVE', 'NEGOCIACION', 'RESERVADO', 'GANADA', 'PERDIDA')
+    * etapa_destino : ENUM('PROSPECTO', 'TEST_DRIVE', 'NEGOCIACION', 'RESERVADO', 'GANADA', 'PERDIDA')
+    * id_usuario : INT <<FK>>
+    motivo : VARCHAR(255)
+    created_at : DATETIME
 }
 
 ' ==========================================================
@@ -193,6 +210,47 @@ entity "tareas" as tareas {
     updated_at : DATETIME
 }
 
+entity "pruebas_manejo" as pruebas_manejo {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_contacto : INT <<FK>>
+    * id_usuario : INT <<FK>>
+    * id_vehiculo : INT <<FK>>
+    * fecha_hora : DATETIME
+    * licencia_conducir : VARCHAR(50)
+    * estado : ENUM('PROGRAMADO', 'COMPLETADO', 'CANCELADO')
+    feedback : TEXT
+    calificacion : INT
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
+entity "tasaciones" as tasaciones {
+    * id : INT AUTO_INCREMENT <<PK>>
+    --
+    * id_contacto : INT <<FK>>
+    * id_usuario : INT <<FK>>
+    id_oportunidad : INT <<FK, NULL>>
+    * dominio : VARCHAR(20)
+    * marca : VARCHAR(50)
+    * modelo : VARCHAR(50)
+    version : VARCHAR(50)
+    * anio : INT
+    * kilometraje : INT
+    combustible : VARCHAR(30)
+    estado_carroceria : VARCHAR(20)
+    estado_pintura : VARCHAR(20)
+    estado_mecanica : VARCHAR(20)
+    estado_cubiertas : VARCHAR(20)
+    detalles_peritaje : TEXT
+    valor_tasado : DECIMAL(12,2)
+    valor_aceptado : DECIMAL(12,2)
+    * estado : ENUM('SOLICITADA', 'EN_PERITAJE', 'APROBADA', 'RECHAZADA', 'INGRESADO_STOCK')
+    id_vehiculo_ingresado : INT
+    created_at : DATETIME
+    updated_at : DATETIME
+}
+
 ' ==========================================================
 ' RELACIONES (Notación Crow's Foot)
 ' ==========================================================
@@ -217,10 +275,12 @@ perfiles ||--o{ perfiles_menus_prg : "id = id_perfil"
 menus ||--o{ perfiles_menus_prg : "id = id_menu"
 programas_acciones ||--o{ perfiles_menus_prg : "id = id_prg"
 
-' CRM: Oportunidades
+' CRM: Oportunidades y Transiciones de Etapa
 contactos ||--o{ oportunidades : "id = id_contacto (Cliente)"
 usuarios ||--o{ oportunidades : "id = id_usuario (Vendedor)"
 vehiculos ||--o{ oportunidades : "id = id_vehiculo"
+oportunidades ||--o{ transiciones_etapa : "id = id_oportunidad"
+usuarios ||--o{ transiciones_etapa : "id = id_usuario"
 
 ' Facturación
 oportunidades ||--o| facturas : "id = id_oportunidad"
@@ -235,5 +295,14 @@ contactos ||--o{ interacciones : "id = id_contacto"
 usuarios ||--o{ interacciones : "id = id_usuario"
 usuarios ||--o{ tareas : "id = id_usuario"
 contactos ||--o{ tareas : "id = id_contacto"
+
+' Pruebas de manejo y Tasaciones
+contactos ||--o{ pruebas_manejo : "id = id_contacto"
+usuarios ||--o{ pruebas_manejo : "id = id_usuario"
+vehiculos ||--o{ pruebas_manejo : "id = id_vehiculo"
+
+contactos ||--o{ tasaciones : "id = id_contacto"
+usuarios ||--o{ tasaciones : "id = id_usuario"
+oportunidades ||--o{ tasaciones : "id = id_oportunidad"
 
 @enduml

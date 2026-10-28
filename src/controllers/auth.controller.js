@@ -4,7 +4,19 @@ export const registro = async (req, res, next) => {
   try {
     const usuario = await authService.registrarUsuario(req.body);
     res.status(201).json({
-      mensaje: 'Usuario registrado exitosamente',
+      mensaje: 'Usuario registrado exitosamente con rol comercial',
+      usuario,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const crearUsuarioPorAdmin = async (req, res, next) => {
+  try {
+    const usuario = await authService.crearUsuarioPorAdmin(req.body);
+    res.status(201).json({
+      mensaje: 'Usuario administrativo creado exitosamente',
       usuario,
     });
   } catch (error) {
@@ -29,4 +41,3 @@ export const miMenu = async (req, res, next) => {
     next(error);
   }
 };
-

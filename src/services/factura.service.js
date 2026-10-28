@@ -103,8 +103,20 @@ export const emitirFactura = async (datos, usuarioId) => {
 
   const total = detallesCalculados.reduce((acc, it) => acc + it.subtotal, 0);
 
-  // 5. Transacción de emisión fiscal
+  // 5. Transacción atómica de emisión fiscal y actualización de stock
   return await prisma.$transaction(async (tx) => {
+    // Validar conflicto de inventario para cada vehículo
+    for (const item of detallesCalculados) {
+      if (item.vehiculoId) {
+        const vehiculo = await tx.vehiculo.findUnique({ where: { id: item.vehiculoId } });
+        if (vehiculo && vehiculo.estado === 'VENDIDO') {
+          const error = new Error(`Conflicto de stock: El vehículo ${vehiculo.marca} ${vehiculo.modelo} ya fue vendido`);
+          error.statusCode = 409;
+          throw error;
+        }
+      }
+    }
+
     const nuevaFactura = await tx.factura.create({
       data: {
         oportunidadId: datos.oportunidadId || null,
@@ -126,15 +138,27 @@ export const emitirFactura = async (datos, usuarioId) => {
       },
     });
 
-    // Si viene de una oportunidad, marcarla como GANADA e imputar la seña previa si existía
+    // Si viene de una oportunidad, marcarla como GANADA, registrar transición e imputar la seña
     if (datos.oportunidadId) {
       const op = await tx.oportunidad.findUnique({ where: { id: datos.oportunidadId } });
+      if (op && op.etapa !== 'GANADA') {
+        await tx.transicionEtapa.create({
+          data: {
+            oportunidadId: op.id,
+            etapaOrigen: op.etapa,
+            etapaDestino: 'GANADA',
+            usuarioId: Number(usuarioId),
+            motivo: `Facturación fiscal emitida (Comprobante Nº ${puntoVenta}-${siguienteNro} con CAE ${caeSimulado})`,
+          },
+        });
+      }
+
       await tx.oportunidad.update({
         where: { id: datos.oportunidadId },
         data: { etapa: 'GANADA' },
       });
 
-      // Imputar automáticamente la seña como pago inicial de la factura
+      // Imputar automáticamente la seña como pago inicial de la factura si existía
       if (op && op.montoSenia && Number(op.montoSenia) > 0) {
         await tx.pagoCobro.create({
           data: {
@@ -161,7 +185,7 @@ export const emitirFactura = async (datos, usuarioId) => {
   });
 };
 
-export const registrarPago = async (facturaId, { metodoPago, monto, nroComprobante }) => {
+export const registrarPago = async (facturaId, datos) => {
   const factura = await prisma.factura.findUnique({
     where: { id: Number(facturaId) },
     include: { pagos: true },
@@ -174,41 +198,49 @@ export const registrarPago = async (facturaId, { metodoPago, monto, nroComproban
   }
 
   if (factura.estado === 'ANULADA') {
-    const error = new Error('No se pueden imputar pagos a una factura anulada');
+    const error = new Error('No se pueden registrar pagos en una factura anulada');
+    error.statusCode = 409;
+    throw error;
+  }
+
+  const montoNuevo = Number(datos.monto);
+  const totalPagadoPrevio = factura.pagos.reduce((acc, p) => acc + Number(p.monto), 0);
+  const totalFactura = Number(factura.total);
+
+  if (totalPagadoPrevio + montoNuevo > totalFactura) {
+    const error = new Error(
+      `El monto ingresado ($${montoNuevo}) supera el saldo pendiente ($${totalFactura - totalPagadoPrevio})`
+    );
     error.statusCode = 400;
     throw error;
   }
 
-  // Registrar el pago
   return await prisma.$transaction(async (tx) => {
-    const nuevoPago = await tx.pagoCobro.create({
+    const pago = await tx.pagoCobro.create({
       data: {
         facturaId: Number(facturaId),
-        metodoPago,
-        monto,
-        nroComprobante: nroComprobante || null,
+        metodoPago: datos.metodoPago,
+        monto: montoNuevo,
+        nroComprobante: datos.nroComprobante || null,
       },
     });
 
-    // Calcular si la factura queda totalmente cancelada
-    const totalPagadoPrevio = factura.pagos.reduce((acc, p) => acc + Number(p.monto), 0);
-    const nuevoTotalPagado = totalPagadoPrevio + Number(monto);
-
-    if (nuevoTotalPagado >= Number(factura.total)) {
+    const nuevoTotalPagado = totalPagadoPrevio + montoNuevo;
+    if (nuevoTotalPagado >= totalFactura) {
       await tx.factura.update({
         where: { id: Number(facturaId) },
         data: { estado: 'PAGADA' },
       });
     }
 
-    return nuevoPago;
+    return pago;
   });
 };
 
 export const anularFactura = async (id) => {
   const factura = await prisma.factura.findUnique({
     where: { id: Number(id) },
-    include: { detalles: true },
+    include: { detalles: true, pagos: true },
   });
 
   if (!factura) {
@@ -218,23 +250,23 @@ export const anularFactura = async (id) => {
   }
 
   if (factura.estado === 'ANULADA') {
-    const error = new Error('La factura ya se encuentra anulada');
-    error.statusCode = 400;
+    const error = new Error('La factura ya está anulada');
+    error.statusCode = 409;
     throw error;
   }
 
   return await prisma.$transaction(async (tx) => {
-    // 1. Cambiar estado de factura
+    // 1. Cambiar estado de la factura a ANULADA
     const facturaAnulada = await tx.factura.update({
       where: { id: Number(id) },
       data: { estado: 'ANULADA' },
     });
 
-    // 2. Liberar vehículos asociados de vuelta a DISPONIBLE
-    for (const item of factura.detalles) {
-      if (item.vehiculoId) {
+    // 2. Liberar vehículos asociados para que vuelvan a estar DISPONIBLES
+    for (const detalle of factura.detalles) {
+      if (detalle.vehiculoId) {
         await tx.vehiculo.update({
-          where: { id: item.vehiculoId },
+          where: { id: detalle.vehiculoId },
           data: { estado: 'DISPONIBLE' },
         });
       }
