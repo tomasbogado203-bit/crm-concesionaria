@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Car, Lock, Mail, User, ArrowRight, ShieldCheck, KeyRound, Building2 } from 'lucide-react';
+import { Car, Lock, Mail, User, ArrowRight, ShieldCheck, Building2 } from 'lucide-react';
 
 export const LoginView = () => {
   const { login, registro } = useAuth();
@@ -47,20 +47,6 @@ export const LoginView = () => {
       });
     } catch (err) {
       setError(err.message || 'Error al registrar usuario');
-    } finally {
-      setCargando(false);
-    }
-  };
-
-  const loginRapido = async (testEmail, testPass) => {
-    setEmail(testEmail);
-    setPassword(testPass);
-    setError(null);
-    setCargando(true);
-    try {
-      await login(testEmail, testPass);
-    } catch (err) {
-      setError(err.message || 'Error al iniciar sesión');
     } finally {
       setCargando(false);
     }
@@ -245,57 +231,6 @@ export const LoginView = () => {
             </button>
           </form>
         )}
-
-        {/* Quick login helper for demo */}
-        <div className="mt-6 pt-5 border-t border-gray-100">
-          <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
-            <KeyRound className="w-3.5 h-3.5 text-gray-700" />
-            Cuentas de Acceso Preconfiguradas:
-          </p>
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => loginRapido('admin@concesionaria.com', 'Password123')}
-              className="w-full text-left px-3.5 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-xs text-gray-700 flex items-center justify-between group transition cursor-pointer shadow-2xs"
-            >
-              <div>
-                <p className="font-semibold text-gray-900 group-hover:text-black transition">Administrador General</p>
-                <p className="text-[10px] text-gray-500">admin@concesionaria.com</p>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
-                ADMIN
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => loginRapido('carlos@concesionaria.com', 'Password123')}
-              className="w-full text-left px-3.5 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-xs text-gray-700 flex items-center justify-between group transition cursor-pointer shadow-2xs"
-            >
-              <div>
-                <p className="font-semibold text-gray-900 group-hover:text-black transition">Carlos Vendedor</p>
-                <p className="text-[10px] text-gray-500">carlos@concesionaria.com</p>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                VENDEDOR
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => loginRapido('facturador@concesionaria.com', 'Password123')}
-              className="w-full text-left px-3.5 py-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200 text-xs text-gray-700 flex items-center justify-between group transition cursor-pointer shadow-2xs"
-            >
-              <div>
-                <p className="font-semibold text-gray-900 group-hover:text-black transition">Ana Facturación</p>
-                <p className="text-[10px] text-gray-500">facturador@concesionaria.com</p>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                FACTURADOR
-              </span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
