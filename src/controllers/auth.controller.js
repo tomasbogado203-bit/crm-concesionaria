@@ -16,7 +16,30 @@ export const crearUsuarioPorAdmin = async (req, res, next) => {
   try {
     const usuario = await authService.crearUsuarioPorAdmin(req.body);
     res.status(201).json({
-      mensaje: 'Usuario administrativo creado exitosamente',
+      mensaje: 'Usuario creado exitosamente',
+      usuario,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listarUsuarios = async (req, res, next) => {
+  try {
+    const usuarios = await authService.listarUsuarios();
+    res.status(200).json(usuarios);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const cambiarEstadoUsuario = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { snActivo } = req.body;
+    const usuario = await authService.cambiarEstadoUsuario(Number(id), { snActivo }, req.user.id);
+    res.status(200).json({
+      mensaje: 'Estado del usuario actualizado exitosamente',
       usuario,
     });
   } catch (error) {

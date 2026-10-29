@@ -9,9 +9,9 @@ import {
   Wrench,
   Receipt,
   Settings,
+  ShieldCheck,
   LogOut,
   ChevronsUpDown,
-  ChevronRight,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -23,6 +23,7 @@ const ICON_MAP = {
   'Tasaciones y Permutas': Wrench,
   'Facturación y Caja': Receipt,
   'Configuración y Seguridad': Settings,
+  'Gestión de Personal': ShieldCheck,
 };
 
 const CATEGORIAS = [
@@ -36,7 +37,7 @@ const CATEGORIAS = [
   },
   {
     titulo: 'Management',
-    modulos: ['Facturación y Caja', 'Configuración y Seguridad'],
+    modulos: ['Facturación y Caja', 'Gestión de Personal'],
   },
 ];
 
@@ -66,8 +67,13 @@ export const Sidebar = ({ vistaActiva, setVistaActiva }) => {
       {/* Navigation List Grouped by Sections */}
       <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
         {CATEGORIAS.map((cat, idx) => {
-          // Filtra según los permisos asignados al usuario
-          const modulosVisibles = cat.modulos.filter((nombre) => menuNombres.includes(nombre));
+          // Filtra según los permisos asignados al usuario y roles RBAC
+          const modulosVisibles = cat.modulos.filter((nombre) => {
+            if (nombre === 'Gestión de Personal') {
+              return usuario?.perfiles?.includes('ADMIN') || menuNombres.includes('Configuración y Seguridad');
+            }
+            return menuNombres.includes(nombre);
+          });
           if (modulosVisibles.length === 0) return null;
 
           return (
@@ -117,7 +123,7 @@ export const Sidebar = ({ vistaActiva, setVistaActiva }) => {
                 {usuario?.nombreCompleto || 'Usuario'}
               </p>
               <p className="text-[10px] text-gray-500 truncate mt-0.5 font-medium">
-                {usuario?.perfiles?.[0] || 'Sales Operator'}
+                {usuario?.perfiles?.[0] || 'Colaborador'}
               </p>
             </div>
           </div>

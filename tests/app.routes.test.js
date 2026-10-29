@@ -66,6 +66,26 @@ describe('Pruebas de Integración de Endpoints y Seguridad (Supertest + Jest - C
       expect(res.body.error).toContain('Acceso denegado');
     });
 
+    it('VENDEDOR no debe poder listar usuarios (GET /auth/usuarios) -> 403', async () => {
+      const res = await request(app)
+        .get('/auth/usuarios')
+        .set('Authorization', `Bearer ${tokenVendedor}`);
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toContain('Acceso denegado');
+    });
+
+    it('Cualquier intento de registro público anónimo (POST /auth/registro) debe ser denegado con 403', async () => {
+      const res = await request(app).post('/auth/registro').send({
+        nombre: 'Cualquiera',
+        email: 'anon@test.com',
+        password: 'password123',
+      });
+
+      expect(res.status).toBe(403);
+      expect(res.body.error).toContain('deshabilitado');
+    });
+
     it('VENDEDOR no debe poder emitir facturas fiscales (POST /facturas) -> 403', async () => {
       const res = await request(app)
         .post('/facturas')
@@ -120,12 +140,15 @@ describe('Pruebas de Integración de Endpoints y Seguridad (Supertest + Jest - C
   });
 
   describe('4. Validación de Esquemas y Códigos de Error (400 Zod)', () => {
-    it('POST /auth/registro con payload inválido debe responder 400 con detalles', async () => {
-      const res = await request(app).post('/auth/registro').send({
-        nombre: 'A',
-        email: 'invalido',
-        password: '123',
-      });
+    it('POST /auth/usuarios con payload inválido debe responder 400 con detalles de Zod', async () => {
+      const res = await request(app)
+        .post('/auth/usuarios')
+        .set('Authorization', `Bearer ${tokenAdmin}`)
+        .send({
+          nombre: 'A',
+          email: 'invalido',
+          password: '123',
+        });
 
       expect(res.status).toBe(400);
       expect(res.body.error).toBe('Error de validación');

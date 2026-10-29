@@ -141,8 +141,104 @@ export const crearUsuarioPorAdmin = async ({
       },
     });
 
-    return nuevoUsuario;
+    return {
+      id: nuevoUsuario.id,
+      contactoId: nuevoUsuario.contactoId,
+      nombreUsuario: nuevoUsuario.nombreUsuario,
+      mail: nuevoUsuario.mail,
+      sucursal: nuevoUsuario.sucursal,
+      snActivo: true,
+      contacto: nuevoUsuario.contacto,
+      perfiles: [rol],
+      rol: rol,
+      createdAt: nuevoUsuario.createdAt,
+    };
   });
+};
+
+export const listarUsuarios = async () => {
+  const usuarios = await prisma.usuario.findMany({
+    include: {
+      contacto: true,
+      perfiles: {
+        include: {
+          perfil: true,
+        },
+      },
+    },
+    orderBy: {
+      id: 'asc',
+    },
+  });
+
+  return usuarios.map((u) => {
+    const roles = (u.perfiles || []).map((p) => p.perfil.nombrePerfil);
+    return {
+      id: u.id,
+      contactoId: u.contactoId,
+      nombreUsuario: u.nombreUsuario,
+      mail: u.mail,
+      sucursal: u.sucursal || 'Central',
+      snActivo: u.snActivo,
+      createdAt: u.createdAt,
+      contacto: u.contacto
+        ? {
+            id: u.contacto.id,
+            nombres: u.contacto.nombres,
+            apellido: u.contacto.apellido,
+            email: u.contacto.email,
+            telefono: u.contacto.telefono,
+          }
+        : null,
+      perfiles: roles,
+      rol: roles.length > 0 ? roles[0] : 'VENDEDOR',
+    };
+  });
+};
+
+export const cambiarEstadoUsuario = async (usuarioId, { snActivo } = {}, adminId) => {
+  if (usuarioId === adminId) {
+    const error = new Error('No es posible modificar el estado de tu propia cuenta de Administrador');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const usuario = await prisma.usuario.findUnique({
+    where: { id: usuarioId },
+  });
+
+  if (!usuario) {
+    const error = new Error('Usuario no encontrado');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const nuevoEstado = typeof snActivo === 'boolean' ? snActivo : !usuario.snActivo;
+
+  const actualizado = await prisma.usuario.update({
+    where: { id: usuarioId },
+    data: { snActivo: nuevoEstado },
+    include: {
+      contacto: true,
+      perfiles: {
+        include: {
+          perfil: true,
+        },
+      },
+    },
+  });
+
+  const roles = (actualizado.perfiles || []).map((p) => p.perfil.nombrePerfil);
+
+  return {
+    id: actualizado.id,
+    nombreUsuario: actualizado.nombreUsuario,
+    mail: actualizado.mail,
+    sucursal: actualizado.sucursal,
+    snActivo: actualizado.snActivo,
+    perfiles: roles,
+    rol: roles.length > 0 ? roles[0] : 'VENDEDOR',
+  };
 };
 
 export const iniciarSesion = async ({ email, password }) => {

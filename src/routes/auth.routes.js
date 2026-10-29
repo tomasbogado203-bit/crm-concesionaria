@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import * as authController from '../controllers/auth.controller.js';
 import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
-import { registroSchema, loginSchema, crearUsuarioAdminSchema } from '../schemas/auth.schema.js';
+import { loginSchema, crearUsuarioAdminSchema } from '../schemas/auth.schema.js';
 
 const router = Router();
 
@@ -16,8 +16,12 @@ const loginLimiter = rateLimit({
   message: { error: 'Demasiados intentos de inicio de sesión. Probá de nuevo en 15 minutos.' },
 });
 
-// Registro público (siempre crea rol VENDEDOR, nunca permite escalada a ADMIN)
-router.post('/registro', validarSchema(registroSchema), authController.registro);
+// Registro público deshabilitado: el alta de usuarios es exclusiva del Administrador
+router.post('/registro', (req, res) => {
+  return res.status(403).json({
+    error: 'El registro público está deshabilitado por políticas de seguridad de la concesionaria. La creación de nuevos usuarios debe ser realizada por un Administrador desde el panel de Gestión de Usuarios.',
+  });
+});
 
 // Login con rate limiter y JWT
 router.post('/login', loginLimiter, validarSchema(loginSchema), authController.login);
@@ -25,13 +29,27 @@ router.post('/login', loginLimiter, validarSchema(loginSchema), authController.l
 // Menú dinámico RBAC
 router.get('/menu', autenticarToken, authController.miMenu);
 
-// Creación de usuarios con roles específicos (exclusivo para ADMIN)
+// Gestión de usuarios y personal (exclusivo para ADMIN)
+router.get(
+  '/usuarios',
+  autenticarToken,
+  autorizarPerfiles('ADMIN'),
+  authController.listarUsuarios
+);
+
 router.post(
   '/usuarios',
   autenticarToken,
   autorizarPerfiles('ADMIN'),
   validarSchema(crearUsuarioAdminSchema),
   authController.crearUsuarioPorAdmin
+);
+
+router.patch(
+  '/usuarios/:id/estado',
+  autenticarToken,
+  autorizarPerfiles('ADMIN'),
+  authController.cambiarEstadoUsuario
 );
 
 export default router;
