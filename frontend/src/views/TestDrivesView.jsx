@@ -31,12 +31,14 @@ export const TestDrivesView = () => {
   const [fechaHora, setFechaHora] = useState('');
   const [licenciaConducir, setLicenciaConducir] = useState('');
   const [guardandoTurno, setGuardandoTurno] = useState(false);
+  const [errorTurno, setErrorTurno] = useState('');
 
   // Form Feedback
   const [calificacion, setCalificacion] = useState(5);
   const [feedback, setFeedback] = useState('');
   const [estadoFeedback, setEstadoFeedback] = useState('COMPLETADO');
   const [guardandoFeedback, setGuardandoFeedback] = useState(false);
+  const [errorFeedback, setErrorFeedback] = useState('');
 
   const cargarDatos = async () => {
     try {
@@ -63,6 +65,7 @@ export const TestDrivesView = () => {
 
   const handleAgendar = async (e) => {
     e.preventDefault();
+    setErrorTurno('');
     setGuardandoTurno(true);
 
     try {
@@ -72,7 +75,7 @@ export const TestDrivesView = () => {
           clienteId: Number(clienteId),
           vehiculoId: Number(vehiculoId),
           fechaHora: new Date(fechaHora).toISOString(),
-          licenciaConducir,
+          licenciaConducir: licenciaConducir.trim(),
         }),
       });
 
@@ -81,9 +84,10 @@ export const TestDrivesView = () => {
       setVehiculoId('');
       setFechaHora('');
       setLicenciaConducir('');
+      setErrorTurno('');
       cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al programar prueba de manejo');
+      setErrorTurno(err.message || 'Error al programar prueba de manejo');
     } finally {
       setGuardandoTurno(false);
     }
@@ -92,6 +96,7 @@ export const TestDrivesView = () => {
   const handleGuardarFeedback = async (e) => {
     e.preventDefault();
     if (!modalFeedback) return;
+    setErrorFeedback('');
     setGuardandoFeedback(true);
 
     try {
@@ -107,9 +112,10 @@ export const TestDrivesView = () => {
       setModalFeedback(null);
       setFeedback('');
       setCalificacion(5);
+      setErrorFeedback('');
       cargarDatos();
     } catch (err) {
-      alert(err.message || 'Error al registrar feedback');
+      setErrorFeedback(err.message || 'Error al registrar feedback');
     } finally {
       setGuardandoFeedback(false);
     }
@@ -117,6 +123,7 @@ export const TestDrivesView = () => {
 
   const programados = testDrives.filter((t) => t.estado === 'PROGRAMADO').length;
   const completados = testDrives.filter((t) => t.estado === 'COMPLETADO').length;
+  const clienteSeleccionado = clientes.find((c) => String(c.id) === String(clienteId));
 
   return (
     <div className="p-8 space-y-6">
@@ -130,7 +137,10 @@ export const TestDrivesView = () => {
         </div>
 
         <button
-          onClick={() => setModalAgendar(true)}
+          onClick={() => {
+            setErrorTurno('');
+            setModalAgendar(true);
+          }}
           className="px-4 py-2 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2 transition cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -258,7 +268,10 @@ export const TestDrivesView = () => {
               {/* Botón acción si está programado */}
               {td.estado === 'PROGRAMADO' && (
                 <button
-                  onClick={() => setModalFeedback(td)}
+                  onClick={() => {
+                    setErrorFeedback('');
+                    setModalFeedback(td);
+                  }}
                   className="w-full py-2 bg-[#18181b] hover:bg-black text-white text-xs font-semibold rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer mt-2"
                 >
                   <MessageSquare className="w-3.5 h-3.5" />
@@ -280,6 +293,13 @@ export const TestDrivesView = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {errorTurno && (
+              <div className="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{errorTurno}</span>
+              </div>
+            )}
 
             <form onSubmit={handleAgendar} className="space-y-4">
               <div>
@@ -328,16 +348,32 @@ export const TestDrivesView = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
-                  Número de Licencia de Conducir (Opcional)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-gray-700">
+                    Número de Licencia de Conducir *
+                  </label>
+                  {clienteSeleccionado?.numeroDni && (
+                    <button
+                      type="button"
+                      onClick={() => setLicenciaConducir(`B1-${clienteSeleccionado.numeroDni}`)}
+                      className="text-[11px] text-blue-600 hover:text-blue-800 font-medium hover:underline cursor-pointer"
+                    >
+                      + Usar DNI provisorio
+                    </button>
+                  )}
+                </div>
                 <input
                   type="text"
+                  required
+                  minLength={4}
                   value={licenciaConducir}
                   onChange={(e) => setLicenciaConducir(e.target.value)}
-                  placeholder="B1 - Vence 12/2027"
+                  placeholder="Ej: B1-38492011 o 38492011"
                   className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                 />
+                <p className="text-[11px] text-gray-400 mt-1">
+                  Requerido por la póliza de seguro automotor para pruebas en vía pública (mínimo 4 caracteres).
+                </p>
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">
@@ -371,6 +407,13 @@ export const TestDrivesView = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {errorFeedback && (
+              <div className="p-3 mb-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                <span>{errorFeedback}</span>
+              </div>
+            )}
 
             <p className="text-xs text-gray-600 mb-4">
               Prueba realizada a <strong className="text-gray-900">{modalFeedback.cliente?.nombres} {modalFeedback.cliente?.apellido || modalFeedback.cliente?.razonSocial}</strong> en <strong className="text-gray-900">{modalFeedback.vehiculo?.marca} {modalFeedback.vehiculo?.modelo}</strong>.
