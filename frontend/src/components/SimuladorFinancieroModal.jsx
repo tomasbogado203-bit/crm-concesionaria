@@ -9,6 +9,8 @@ import {
   Car,
   FileCheck,
   Info,
+  Shield,
+  Edit2,
 } from 'lucide-react';
 
 const LINEAS_CREDITO = {
@@ -32,18 +34,32 @@ const LINEAS_CREDITO = {
   },
 };
 
-const SEGUROS = {
+const COMPANIAS_ASEGURADORAS = [
+  'La Segunda Seguros',
+  'San Cristóbal Seguros',
+  'Federación Patronal',
+  'Seguros Rivadavia',
+  'Sancor Seguros',
+  'Zurich / Allianz',
+  'Otra Aseguradora',
+];
+
+const PLANES_COBERTURA = {
   TERCEROS_COMPLETO: {
     nombre: 'Terceros Completo Premium (Granizo, Cristales y Robo)',
-    costo: 48000,
+    costoSugerido: 48000,
   },
   TODO_RIESGO: {
     nombre: 'Todo Riesgo con Franquicia Fija',
-    costo: 78000,
+    costoSugerido: 78000,
   },
   BASICO: {
     nombre: 'Responsabilidad Civil y Destrucción Total',
-    costo: 28000,
+    costoSugerido: 28000,
+  },
+  PERSONALIZADO: {
+    nombre: 'Cobertura Especial / A Medida',
+    costoSugerido: 50000,
   },
 };
 
@@ -55,14 +71,20 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
   const [valorPermuta, setValorPermuta] = useState(0);
   const [cuotas, setCuotas] = useState(36);
   const [lineaSeleccionada, setLineaSeleccionada] = useState('PRENDARIO_FIJO');
-  const [seguroSeleccionado, setSeguroSeleccionado] = useState('TERCEROS_COMPLETO');
+
+  // Estados de Aseguradora y Cobertura (100% editables)
+  const [aseguradora, setAseguradora] = useState('La Segunda Seguros');
+  const [aseguradoraOtra, setAseguradoraOtra] = useState('');
+  const [tipoCobertura, setTipoCobertura] = useState('TERCEROS_COMPLETO');
+  const [costoSeguroMensual, setCostoSeguroMensual] = useState(48000);
 
   // Cálculos financieros
   const entregaTotal = Number(anticipoEfectivo || 0) + Number(valorPermuta || 0);
   const saldoAFinanciar = Math.max(0, Number(precioVehiculo) - entregaTotal);
 
   const linea = LINEAS_CREDITO[lineaSeleccionada];
-  const seguro = SEGUROS[seguroSeleccionado];
+  const costoSeguro = Number(costoSeguroMensual || 0);
+  const aseguradoraFinal = aseguradora === 'Otra Aseguradora' ? (aseguradoraOtra || 'Aseguradora Externa') : aseguradora;
 
   // Cálculo de cuota pura
   let cuotaPura = 0;
@@ -76,7 +98,7 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
     }
   }
 
-  const cuotaTotalMensual = Math.round(cuotaPura + seguro.costo);
+  const cuotaTotalMensual = Math.round(cuotaPura + costoSeguro);
   const totalFinanciado = Math.round(cuotaTotalMensual * cuotas);
   const inversionTotal = entregaTotal + totalFinanciado;
 
@@ -98,136 +120,122 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
                 Simulador Financiero Prendario
               </h3>
               <p className="text-xs text-gray-500">
-                Cotización oficial de cuotas, tasas y plan de pago para operaciones comerciales.
+                Planificación de cuotas, seguro prendario y opciones de permuta
               </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className="px-3.5 py-1.5 bg-[#18181b] hover:bg-black text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
-              title="Imprimir presupuesto para el cliente"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Imprimir Presupuesto</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-700 rounded-xl hover:bg-gray-100 transition cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-700 p-2 rounded-xl hover:bg-gray-100 transition cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
-        {/* Printable Official Heading (only visible in print) */}
-        <div className="hidden print:block p-8 border-b border-gray-300 text-gray-900">
-          <div className="flex justify-between items-start">
-            <div>
-              <h1 className="text-2xl font-black tracking-wider uppercase">AUTO CRM · CONCESIONARIA OFICIAL</h1>
-              <p className="text-xs text-gray-600 mt-1">División Créditos y Financiaciones Prendarias</p>
-              <p className="text-xs text-gray-500">CUIT: 30-71458923-4 · Casa Central</p>
-            </div>
-            <div className="text-right text-xs">
-              <p className="font-bold">PRESUPUESTO COMERCIAL Nº {Math.floor(100000 + Math.random() * 900000)}</p>
-              <p className="text-gray-500">Fecha: {new Date().toLocaleDateString('es-AR')}</p>
-              <p className="text-gray-600 font-semibold text-rose-600">Validez: 7 días corridos</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 text-xs bg-white text-gray-900">
-          {/* Left Column: Form Controls */}
+        {/* Modal Body */}
+        <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 print:p-0 print:gap-4">
+          {/* Left Column: Configuration Controls */}
           <div className="lg:col-span-7 space-y-4 print:col-span-12">
+            {/* Target Vehicle Preview Card */}
             {vehiculo && (
-              <div className="p-3.5 bg-gray-50/70 border border-gray-200 rounded-xl flex items-center justify-between print:bg-gray-100 print:border-gray-300">
-                <div className="flex items-center gap-2.5">
-                  <Car className="w-4 h-4 text-gray-700" />
+              <div className="bg-gray-50/80 border border-gray-200/80 rounded-2xl p-3.5 flex items-center justify-between shadow-2xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-700 shadow-2xs">
+                    <Car className="w-4 h-4" />
+                  </div>
                   <div>
-                    <span className="font-bold text-gray-900 block text-xs">
-                      {vehiculo.marca} {vehiculo.modelo} {vehiculo.version}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      Año: {vehiculo.anio} · VIN: {vehiculo.vin} · {vehiculo.condicion === 'CERO_KM' ? '0 Kilómetro' : 'Usado Seleccionado'}
-                    </span>
+                    <h4 className="font-bold text-xs text-gray-900">
+                      {vehiculo.marca} {vehiculo.modelo} ({vehiculo.anio})
+                    </h4>
+                    <p className="text-[10px] text-gray-500">
+                      VIN: {vehiculo.vin} · {vehiculo.version}
+                    </p>
                   </div>
                 </div>
-                <span className="text-xs font-mono font-bold text-gray-900">
-                  ${Number(precioVehiculo).toLocaleString('es-AR')}
-                </span>
+                <div className="text-right">
+                  <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
+                    Precio Lista
+                  </span>
+                  <span className="text-xs font-bold text-gray-900 font-mono">
+                    ${Number(precioVehiculo).toLocaleString('es-AR')}
+                  </span>
+                </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-3 print:grid-cols-2">
+            {/* Inputs: Price & Down Payment */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                  Precio de Lista de la Unidad ($)
+                  Precio de la Unidad ($)
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="50000"
-                  value={precioVehiculo}
-                  onChange={(e) => setPrecioVehiculo(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
-                />
+                <div className="relative">
+                  <DollarSign className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
+                  <input
+                    type="number"
+                    value={precioVehiculo}
+                    onChange={(e) => setPrecioVehiculo(Number(e.target.value) || 0)}
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs font-mono font-medium focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-gray-700 mb-1">
                   Anticipo en Efectivo ($)
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="50000"
-                  value={anticipoEfectivo}
-                  onChange={(e) => setAnticipoEfectivo(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-emerald-700 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
-                />
+                <div className="relative">
+                  <DollarSign className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
+                  <input
+                    type="number"
+                    value={anticipoEfectivo}
+                    onChange={(e) => setAnticipoEfectivo(Number(e.target.value) || 0)}
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs font-mono font-medium focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 print:grid-cols-2">
+            {/* Permuta (Used Trade-in) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-semibold text-gray-700 mb-1">
                   Toma de Usado en Permuta ($)
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="50000"
-                  value={valorPermuta}
-                  onChange={(e) => setValorPermuta(Number(e.target.value))}
-                  placeholder="0 (si entrega auto usado)"
-                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-amber-700 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
-                />
+                <div className="relative">
+                  <DollarSign className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
+                  <input
+                    type="number"
+                    placeholder="0 si no entrega usado"
+                    value={valorPermuta || ''}
+                    onChange={(e) => setValorPermuta(Number(e.target.value) || 0)}
+                    className="w-full pl-8 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs font-mono font-medium focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 print:border-gray-300"
+                  />
+                </div>
               </div>
 
               <div>
                 <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                  Plazo de Financiación
+                  Plazo de Financiación (Meses)
                 </label>
                 <select
                   value={cuotas}
                   onChange={(e) => setCuotas(Number(e.target.value))}
                   className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer print:border-gray-300"
                 >
-                  <option value={12}>12 Cuotas Mensuales (1 año)</option>
-                  <option value={18}>18 Cuotas Mensuales</option>
-                  <option value={24}>24 Cuotas Mensuales (2 años)</option>
-                  <option value={36}>36 Cuotas Mensuales (3 años)</option>
-                  <option value={48}>48 Cuotas Mensuales (4 años)</option>
-                  <option value={60}>60 Cuotas Mensuales (5 años)</option>
+                  <option value={12}>12 Cuotas (1 año)</option>
+                  <option value={24}>24 Cuotas (2 años)</option>
+                  <option value={36}>36 Cuotas (3 años)</option>
+                  <option value={48}>48 Cuotas (4 años)</option>
+                  <option value={60}>60 Cuotas (5 años)</option>
                 </select>
               </div>
             </div>
 
+            {/* Credit Line Selector */}
             <div>
               <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                Línea Financiera / Entidad Bancaria
+                Línea Financiera y Entidad Bancaria
               </label>
               <select
                 value={lineaSeleccionada}
@@ -245,21 +253,100 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
               </p>
             </div>
 
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                Cobertura de Seguro Obligatorio Prendario
-              </label>
-              <select
-                value={seguroSeleccionado}
-                onChange={(e) => setSeguroSeleccionado(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900 cursor-pointer print:border-gray-300"
-              >
-                {Object.entries(SEGUROS).map(([key, item]) => (
-                  <option key={key} value={key}>
-                    {item.nombre} · +${item.costo.toLocaleString('es-AR')}/mes
-                  </option>
-                ))}
-              </select>
+            {/* SEGURO OBLIGATORIO PRENDARIO (100% Configurable y Editable) */}
+            <div className="bg-gray-50/60 border border-gray-200 rounded-2xl p-3.5 space-y-3 print:bg-white print:border-gray-300">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <label className="text-[11px] font-semibold text-gray-800">
+                    Seguro Obligatorio Prendario
+                  </label>
+                </div>
+                <span className="text-[10px] text-gray-400 font-mono">Editable en tiempo real</span>
+              </div>
+
+              {/* Selector de Plan y Costo */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                <div className="sm:col-span-7">
+                  <label className="block text-[10px] font-medium text-gray-500 mb-0.5">
+                    Plan / Tipo de Cobertura
+                  </label>
+                  <select
+                    value={tipoCobertura}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setTipoCobertura(val);
+                      if (PLANES_COBERTURA[val]) {
+                        setCostoSeguroMensual(PLANES_COBERTURA[val].costoSugerido);
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 cursor-pointer print:border-gray-300"
+                  >
+                    {Object.entries(PLANES_COBERTURA).map(([key, item]) => (
+                      <option key={key} value={key}>
+                        {item.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="sm:col-span-5">
+                  <label className="block text-[10px] font-medium text-gray-500 mb-0.5">
+                    Prima Mensual ($/mes)
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-2.5" />
+                    <input
+                      type="number"
+                      min="0"
+                      step="1000"
+                      value={costoSeguroMensual}
+                      onChange={(e) => setCostoSeguroMensual(Number(e.target.value) || 0)}
+                      title="Podés editar el valor exacto cotizado por la aseguradora"
+                      className="w-full pl-8 pr-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs font-mono font-bold focus:outline-none focus:ring-1 focus:ring-gray-900 print:border-gray-300"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Selector de Compañía Aseguradora */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div>
+                  <label className="block text-[10px] font-medium text-gray-500 mb-0.5">
+                    Compañía Aseguradora Conveniada
+                  </label>
+                  <select
+                    value={aseguradora}
+                    onChange={(e) => setAseguradora(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 cursor-pointer print:border-gray-300"
+                  >
+                    {COMPANIAS_ASEGURADORAS.map((cia) => (
+                      <option key={cia} value={cia}>
+                        {cia}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {aseguradora === 'Otra Aseguradora' ? (
+                  <div>
+                    <label className="block text-[10px] font-medium text-gray-500 mb-0.5">
+                      Nombre de la Aseguradora
+                    </label>
+                    <input
+                      type="text"
+                      value={aseguradoraOtra}
+                      onChange={(e) => setAseguradoraOtra(e.target.value)}
+                      placeholder="Ej: Mapfre, Allianz, etc."
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-gray-900 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 print:border-gray-300"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center text-[10px] text-gray-500 italic pt-4">
+                    <span>Póliza obligatoria endosada a favor de la entidad acreedora prendaria.</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -279,7 +366,7 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
                   ${cuotaTotalMensual.toLocaleString('es-AR')}
                 </p>
                 <span className="text-[10px] text-gray-400 mt-1 block">
-                  {cuotas} cuotas fijas · Incluye cuota pura + seguro vehicular
+                  {cuotas} cuotas fijas · Incluye cuota pura + seguro ({aseguradoraFinal})
                 </span>
               </div>
 
@@ -287,27 +374,39 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
               <div className="space-y-2 text-[11px] pt-2 border-t border-gray-200 print:border-gray-300">
                 <div className="flex justify-between text-gray-600">
                   <span>Precio Lista:</span>
-                  <span className="font-mono text-gray-900 font-semibold">${Number(precioVehiculo).toLocaleString('es-AR')}</span>
+                  <span className="font-mono text-gray-900 font-semibold">
+                    ${Number(precioVehiculo).toLocaleString('es-AR')}
+                  </span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Entrega Inicial (Anticipo + Permuta):</span>
-                  <span className="font-mono text-emerald-700 font-semibold">-${entregaTotal.toLocaleString('es-AR')}</span>
+                  <span className="font-mono text-emerald-700 font-semibold">
+                    -${entregaTotal.toLocaleString('es-AR')}
+                  </span>
                 </div>
                 <div className="flex justify-between text-gray-700 font-semibold border-t border-gray-200 pt-1.5 print:border-gray-300">
                   <span>Capital Neto a Financiar:</span>
-                  <span className="font-mono text-gray-900 font-bold">${saldoAFinanciar.toLocaleString('es-AR')}</span>
+                  <span className="font-mono text-gray-900 font-bold">
+                    ${saldoAFinanciar.toLocaleString('es-AR')}
+                  </span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>TNA / CFT:</span>
-                  <span className="font-mono text-gray-800">{linea.tna}% / {linea.cft}%</span>
+                  <span className="font-mono text-gray-800">
+                    {linea.tna}% / {linea.cft}%
+                  </span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Seguro ({seguroSeleccionado === 'TODO_RIESGO' ? 'Todo Riesgo' : 'Terceros'}):</span>
-                  <span className="font-mono text-gray-800">${seguro.costo.toLocaleString('es-AR')}/mes</span>
+                  <span>Seguro ({aseguradoraFinal}):</span>
+                  <span className="font-mono text-gray-800 font-semibold">
+                    ${costoSeguro.toLocaleString('es-AR')}/mes
+                  </span>
                 </div>
                 <div className="flex justify-between text-gray-700 border-t border-gray-200 pt-1.5 print:border-gray-300 font-bold">
                   <span>Total Inversión Proyectada:</span>
-                  <span className="font-mono text-gray-900">${inversionTotal.toLocaleString('es-AR')}</span>
+                  <span className="font-mono text-gray-900">
+                    ${inversionTotal.toLocaleString('es-AR')}
+                  </span>
                 </div>
               </div>
             </div>
@@ -349,7 +448,7 @@ export const SimuladorFinancieroModal = ({ vehiculo, onClose }) => {
                   className="flex-1 py-2 px-4 bg-[#18181b] hover:bg-black text-white rounded-xl font-semibold transition cursor-pointer flex items-center justify-center gap-1.5 text-xs shadow-xs"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Imprimir</span>
+                  <span>Imprimir Presupuesto</span>
                 </button>
               </div>
             </div>
