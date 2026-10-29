@@ -144,3 +144,59 @@ export const registrarInteraccion = async (clienteId, { canal, resumen }, usuari
   });
 };
 
+export const enviarCorreoACliente = async (clienteId, { asunto, mensaje, plantilla }, usuarioId) => {
+  const cliente = await obtenerClientePorId(clienteId);
+
+  if (!cliente.email) {
+    const error = new Error('El contacto no posee una dirección de correo electrónico registrada');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  // 1. Registrar automáticamente en la bitácora de interacciones
+  const interaccion = await prisma.interaccion.create({
+    data: {
+      clienteId: Number(clienteId),
+      usuarioId: Number(usuarioId),
+      canal: 'EMAIL',
+      resumen: `Email enviado [${asunto}]: ${mensaje.length > 120 ? mensaje.substring(0, 120) + '...' : mensaje}`,
+    },
+    include: {
+      usuario: {
+        select: { nombreUsuario: true },
+      },
+    },
+  });
+
+  // 2. Disparar webhook de N8N en segundo plano si está configurado (no bloquea al usuario)
+  const n8nWebhookUrl = process.env.N8N_EMAIL_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+  if (n8nWebhookUrl && process.env.NODE_ENV !== 'test') {
+    const nombreCliente = cliente.tipoPersona === 'JURIDICA'
+      ? (cliente.razonSocial || cliente.nombres)
+      : `${cliente.nombres} ${cliente.apellido || ''}`.trim();
+
+    fetch(n8nWebhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        evento: 'EMAIL_CLIENTE',
+        clienteId: cliente.id,
+        nombreCliente,
+        emailCliente: cliente.email,
+        telefonoCliente: cliente.telefono || '',
+        asunto,
+        mensaje,
+        plantilla: plantilla || 'PERSONALIZADO',
+        fecha: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(3000),
+    }).catch((err) => {
+      console.error('[N8N Webhook] Error llamando a N8N para envío de email:', err.message);
+    });
+  }
+
+  return {
+    mensaje: 'Correo procesado y registrado en la bitácora de interacciones',
+    interaccion,
+  };
+};

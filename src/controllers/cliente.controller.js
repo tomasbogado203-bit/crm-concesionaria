@@ -69,3 +69,15 @@ export const registrarInteraccion = async (req, res, next) => {
   }
 };
 
+export const enviarCorreoCliente = async (req, res, next) => {
+  try {
+    const resultado = await clienteService.enviarCorreoACliente(
+      req.params.id,
+      req.body,
+      req.user.id
+    );
+    res.status(200).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};

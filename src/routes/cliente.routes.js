@@ -6,6 +6,7 @@ import {
   crearClienteSchema,
   actualizarClienteSchema,
   crearInteraccionSchema,
+  enviarCorreoClienteSchema,
 } from '../schemas/cliente.schema.js';
 
 const router = Router();
@@ -24,6 +25,12 @@ router.post(
   autorizarPerfiles('ADMIN', 'VENDEDOR'),
   validarSchema(crearInteraccionSchema),
   clienteController.registrarInteraccion
+);
+router.post(
+  '/:id/enviar-correo',
+  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  validarSchema(enviarCorreoClienteSchema),
+  clienteController.enviarCorreoCliente
 );
 
 export default router;

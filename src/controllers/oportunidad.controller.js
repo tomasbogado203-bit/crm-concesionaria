@@ -13,10 +13,42 @@ export const listar = async (req, res, next) => {
 export const crear = async (req, res, next) => {
   try {
     const nueva = await oportunidadService.crearOportunidad(req.body, req.user.id);
+
+    // 1. Respondo al usuario YA, no espero a N8N (Paso 6 - Clase 10).
     res.status(201).json({
       mensaje: 'Oportunidad creada exitosamente',
       oportunidad: nueva,
     });
+
+    // 2. Aviso a N8N en segundo plano. Si falla, no rompe nada (Paso 6 - Clase 10).
+    const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
+    if (n8nWebhookUrl && process.env.NODE_ENV !== 'test') {
+      const nombreCliente = nueva.cliente
+        ? (nueva.cliente.tipoPersona === 'JURIDICA'
+            ? (nueva.cliente.razonSocial || nueva.cliente.nombres)
+            : `${nueva.cliente.nombres} ${nueva.cliente.apellido || ''}`.trim())
+        : 'Cliente';
+
+      const emailCliente = nueva.cliente?.email || '';
+
+      fetch(n8nWebhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombreCliente,
+          emailCliente,
+          telefonoCliente: nueva.cliente?.telefono || '',
+          oportunidadId: nueva.id,
+          montoEstimado: nueva.montoEstimado,
+          etapa: nueva.etapa,
+          vehiculo: nueva.vehiculo ? `${nueva.vehiculo.marca} ${nueva.vehiculo.modelo} (${nueva.vehiculo.anio})` : null,
+          fecha: new Date().toISOString(),
+        }),
+        signal: AbortSignal.timeout(3000),
+      }).catch((error) => {
+        console.error('Error llamando al webhook de N8N:', error.message);
+      });
+    }
   } catch (error) {
     next(error);
   }
@@ -59,4 +91,3 @@ export const registrarSenia = async (req, res, next) => {
     next(error);
   }
 };
-

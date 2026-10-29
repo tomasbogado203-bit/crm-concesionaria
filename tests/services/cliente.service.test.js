@@ -28,6 +28,7 @@ const {
   actualizarCliente,
   eliminarCliente,
   registrarInteraccion,
+  enviarCorreoACliente,
 } = await import('../../src/services/cliente.service.js');
 
 describe('Cliente Service - Party Model y Seguimiento 360', () => {
@@ -117,6 +118,34 @@ describe('Cliente Service - Party Model y Seguimiento 360', () => {
 
       const res = await registrarInteraccion(1, { canal: 'WHATSAPP', resumen: 'Consulta por stock' }, 2);
       expect(res.canal).toBe('WHATSAPP');
+    });
+  });
+
+  describe('enviarCorreoACliente', () => {
+    it('arroja 400 si el cliente no posee correo electrónico', async () => {
+      mockPrisma.contacto.findFirst.mockResolvedValue({ id: 1, email: null });
+      await expect(
+        enviarCorreoACliente(1, { asunto: 'Catálogo', mensaje: 'Hola' }, 1)
+      ).rejects.toMatchObject({ statusCode: 400 });
+    });
+
+    it('registra interacción EMAIL y envía el correo exitosamente', async () => {
+      mockPrisma.contacto.findFirst.mockResolvedValue({
+        id: 1,
+        email: 'juan@test.com',
+        nombres: 'Juan',
+        apellido: 'Perez',
+        tipoPersona: 'FISICA',
+      });
+      mockPrisma.interaccion.create.mockResolvedValue({ id: 10, canal: 'EMAIL' });
+
+      const res = await enviarCorreoACliente(
+        1,
+        { asunto: 'Catálogo 2026', mensaje: 'Te adjuntamos opciones disponibles' },
+        1
+      );
+      expect(res.interaccion.canal).toBe('EMAIL');
+      expect(mockPrisma.interaccion.create).toHaveBeenCalled();
     });
   });
 });

@@ -47,4 +47,8 @@ export const crearInteraccionSchema = z.object({
   resumen: z.string().min(3, 'El resumen debe tener al menos 3 caracteres'),
 });
 
-
+export const enviarCorreoClienteSchema = z.object({
+  asunto: z.string().min(2, 'El asunto debe tener al menos 2 caracteres'),
+  mensaje: z.string().min(5, 'El mensaje debe tener al menos 5 caracteres'),
+  plantilla: z.string().optional(),
+});
