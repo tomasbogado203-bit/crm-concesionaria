@@ -100,7 +100,7 @@ export const LoginView = ({ onVerCatalogoPublico }) => {
               className="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
             >
               <Car className="w-4 h-4 text-emerald-600" />
-              <span>Ver Catálogo de Vehículos (Salón Virtual)</span>
+              <span>Explorar Catálogo de Vehículos (Showroom Oficial)</span>
             </button>
           </div>
         )}

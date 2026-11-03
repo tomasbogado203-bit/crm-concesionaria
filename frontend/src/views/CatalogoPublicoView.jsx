@@ -29,6 +29,7 @@ import {
   User,
   BadgePercent,
   ArrowUpRight,
+  BadgeCheck,
 } from 'lucide-react';
 import { SimuladorFinancieroModal } from '../components/SimuladorFinancieroModal';
 
@@ -256,8 +257,8 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
   const handleConsultarWhatsAppDirecto = (v) => {
     const cuota = calcularCuotaEstimada(v.precioVenta);
     const texto = encodeURIComponent(
-      `¡Hola! Estoy viendo el Salón Virtual oficial y me interesa el *${v.marca} ${v.modelo} ${v.version} (${v.anio})* publicado a $${Number(v.precioVenta).toLocaleString('es-AR')}.\n` +
-      `Vi que la cuota estimada ronda los $${cuota.toLocaleString('es-AR')}/mes. ¿Me podrían asesorar sobre requisitos y disponibilidad inmediata?`
+      `¡Hola! Estoy viendo el catálogo oficial y me interesa el *${v.marca} ${v.modelo} ${v.version} (${v.anio})* publicado a $${Number(v.precioVenta).toLocaleString('es-AR')}.\n` +
+      `Vi que la cuota estimada ronda los $${cuota.toLocaleString('es-AR')}/mes. ¿Me podrían brindar asesoramiento comercial y disponibilidad de entrega inmediata?`
     );
     window.open(`https://wa.me/5491123456789?text=${texto}`, '_blank');
   };
@@ -305,133 +306,164 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] text-gray-900 font-sans flex flex-col selection:bg-gray-900 selection:text-white pb-28">
-      {/* Top Banner Oficial */}
-      <div className="bg-[#121214] text-white px-4 py-2 text-xs flex flex-wrap items-center justify-between gap-2 border-b border-gray-800 shadow-inner">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-xs" />
-          <span className="font-bold text-gray-100 tracking-wide">Salón Oficial de Ventas & Stock Sincronizado</span>
-          <span className="text-gray-600 hidden sm:inline">|</span>
-          <span className="text-gray-400 hidden sm:inline">Atención en Línea: Lun a Sáb 9:00 a 19:30 hs</span>
-        </div>
+      {/* 1. Top Bar Corporativo de Alta Gama */}
+      <div className="bg-zinc-950 text-zinc-300 px-4 py-2 text-xs border-b border-zinc-800/80">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3 text-[11px] text-zinc-400">
+            <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-500/20" />
+              Concesionaria Oficial Multimarca
+            </span>
+            <span className="text-zinc-700 hidden sm:inline">|</span>
+            <span className="hidden sm:inline">Unidades Seleccionadas con Peritaje & Garantía Escrita</span>
+            <span className="text-zinc-700 hidden md:inline">|</span>
+            <span className="text-zinc-400 hidden md:inline">Lun a Sáb 9:00 a 19:30 hs</span>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <a
-            href="https://wa.me/5491123456789"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold transition cursor-pointer"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-            <span>Asesor de Guardia: +54 9 11 2345-6789</span>
-          </a>
+          <div className="flex items-center gap-4 text-[11px]">
+            <a
+              href="https://wa.me/5491123456789"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 text-zinc-300 hover:text-emerald-400 font-medium transition cursor-pointer"
+            >
+              <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Atención Comercial Directa: +54 9 11 2345-6789</span>
+            </a>
 
-          {usuarioLogueado ? (
-            <button
-              onClick={onVolverCRM}
-              className="ml-2 px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-white text-[11px] font-semibold transition cursor-pointer flex items-center gap-1.5 border border-white/10"
-            >
-              <span>Volver al CRM ({usuarioLogueado.nombreCompleto?.split(' ')[0]})</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          ) : (
-            <button
-              onClick={onVolverLogin}
-              className="ml-2 px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-gray-300 hover:text-white text-[11px] font-semibold transition cursor-pointer flex items-center gap-1.5 border border-white/10"
-            >
-              <LogIn className="w-3 h-3" />
-              <span>Acceso Personal</span>
-            </button>
-          )}
+            {usuarioLogueado ? (
+              <button
+                onClick={onVolverCRM}
+                className="px-2.5 py-1 bg-zinc-800 hover:bg-zinc-700 rounded-lg text-white font-medium transition cursor-pointer flex items-center gap-1.5 border border-zinc-700/60"
+              >
+                <span>Volver al CRM ({usuarioLogueado.nombreCompleto?.split(' ')[0]})</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            ) : (
+              <button
+                onClick={onVolverLogin}
+                className="px-2.5 py-1 bg-zinc-800/80 hover:bg-zinc-700 rounded-lg text-zinc-300 hover:text-white font-medium transition cursor-pointer flex items-center gap-1.5 border border-zinc-700/50"
+              >
+                <LogIn className="w-3 h-3 text-zinc-400" />
+                <span>Acceso Corporativo</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Header Principal con navegación y acceso al comparador */}
-      <header className="bg-white/95 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#18181b] text-white flex items-center justify-center shadow-md">
-              <Car className="w-5 h-5 stroke-[2]" />
+      {/* 2. Header Principal con Identidad de Marca Premium */}
+      <header className="bg-white/95 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-30 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-zinc-950 text-white flex items-center justify-center shadow-sm ring-1 ring-zinc-800">
+              <Car className="w-6 h-6 stroke-[1.8]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base font-extrabold text-gray-900 tracking-tight leading-tight">
-                  CONCESIONARIA OFICIAL
+                <h1 className="text-lg font-black text-zinc-900 tracking-tight leading-none uppercase">
+                  Auto Concesionaria
                 </h1>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-extrabold tracking-wider border border-blue-200">
-                  SALÓN DIGITAL
+                <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 text-[10px] font-bold tracking-wider uppercase border border-zinc-200">
+                  Showroom Oficial
                 </span>
               </div>
-              <p className="text-[11px] text-gray-500 font-medium">
-                Unidades 0KM multimarca y Usados Seleccionados con Garantía Mecánica
+              <p className="text-xs text-zinc-500 font-normal mt-1">
+                Catálogo Digital de Unidades 0KM y Seminuevos Certificados
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Botón flotante para abrir comparador si tiene items */}
+            {/* Botón comparador en el header si hay vehículos seleccionados */}
             {vehiculosComparar.length > 0 && (
               <button
                 onClick={() => setMostrarModalComparador(true)}
-                className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs cursor-pointer animate-in fade-in"
+                className="px-3.5 py-2 bg-zinc-900 hover:bg-black text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm cursor-pointer animate-in fade-in"
               >
-                <Scale className="w-4 h-4" />
-                <span>Comparar ({vehiculosComparar.length}/3)</span>
+                <Scale className="w-4 h-4 text-blue-400" />
+                <span>Comparativa ({vehiculosComparar.length}/3)</span>
               </button>
             )}
 
-            {/* Mini Resumen de Stock en Header */}
-            <div className="hidden lg:flex items-center gap-3 text-xs">
-              <div className="px-3 py-1.5 bg-gray-50 border border-gray-200/80 rounded-xl flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-gray-500 font-medium">0KM:</span>
-                <span className="font-bold text-gray-900">{unidades0km} disp.</span>
-              </div>
-              <div className="px-3 py-1.5 bg-gray-50 border border-gray-200/80 rounded-xl flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-gray-500 font-medium">Usados:</span>
-                <span className="font-bold text-gray-900">{unidadesUsados} disp.</span>
+            {/* Resumen de Inventario en Header */}
+            <div className="hidden lg:flex items-center gap-2 text-xs">
+              <div className="px-3 py-1.5 bg-zinc-50 border border-zinc-200/80 rounded-xl flex items-center gap-2">
+                <span className="text-zinc-500 font-medium">Stock Disponible:</span>
+                <span className="font-extrabold text-zinc-900">{vehiculos.length} unidades</span>
+                <span className="text-zinc-300 font-light">|</span>
+                <span className="text-zinc-600 font-semibold">{unidades0km} nuevos</span>
+                <span className="text-zinc-400">·</span>
+                <span className="text-zinc-600 font-semibold">{unidadesUsados} seminuevos</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Interactivo */}
-      <section className="bg-linear-to-b from-white via-gray-50/60 to-gray-100/50 border-b border-gray-200/80 pt-8 pb-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200/90 text-gray-800 text-xs font-semibold shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Entrega inmediata garantizada · Peritaje de 150 puntos · Financiación Bancaria</span>
+      {/* 3. Hero Section Profesional y Editorial */}
+      <section className="bg-gradient-to-b from-white via-zinc-50/70 to-zinc-100/60 border-b border-zinc-200/80 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-zinc-800 text-[11px] font-semibold tracking-wide">
+            <BadgeCheck className="w-3.5 h-3.5 text-zinc-700" />
+            <span>Vehículos Verificados · Peritaje Mecánico de 150 Puntos · Financiación Prendaria</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">
-            Elegí, compará y financiá tu próximo auto
+          <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-zinc-950 tracking-tight leading-tight">
+            Encontrá tu próximo vehículo con respaldo oficial
           </h2>
 
-          <p className="text-sm text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Explorá el stock en tiempo real con cuotas estimadas por unidad, comparador interactivo hasta 3 vehículos y solicitud de Test Drive vinculada directamente al CRM.
+          <p className="text-sm sm:text-base text-zinc-600 max-w-2xl mx-auto leading-relaxed font-normal">
+            Conocé nuestro catálogo exclusivo con precios actualizados, cálculo de cuotas en tiempo real, tasación online de tu usado y reserva inmediata de test drive.
           </p>
 
-          {/* Barra de Búsqueda Principal */}
+          {/* Barra de Búsqueda de Alta Gama */}
           <div className="pt-3 max-w-2xl mx-auto">
             <div className="relative">
-              <Search className="w-5 h-5 text-gray-400 absolute left-4 top-3.5" />
+              <Search className="w-5 h-5 text-zinc-400 absolute left-4 top-4" />
               <input
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por marca, modelo o versión (ej. Hilux, Taos, Cruze, Ranger...)"
-                className="w-full pl-12 pr-10 py-3.5 bg-white border border-gray-200 rounded-2xl text-sm text-gray-900 placeholder:text-gray-400 shadow-xs focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                placeholder="Buscar por marca, modelo, versión o palabra clave (ej. Taos, Hilux, Ranger, Corolla...)"
+                className="w-full pl-12 pr-10 py-3.5 bg-white border border-zinc-300 rounded-2xl text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition"
               />
               {busqueda && (
                 <button
                   onClick={() => setBusqueda('')}
-                  className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-700 cursor-pointer"
+                  className="absolute right-4 top-3.5 text-zinc-400 hover:text-zinc-700 cursor-pointer"
                   title="Limpiar búsqueda"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* 3 Pilares de Confianza Automotriz */}
+          <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
+            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-zinc-900">Peritaje Integral</p>
+                <p className="text-[11px] text-zinc-500">Documentación al día y revisión de 150 puntos.</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+              <Calculator className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-zinc-900">Financiación Flexible</p>
+                <p className="text-[11px] text-zinc-500">Créditos prendarios en cuotas fijas o UVA.</p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+              <ArrowLeftRight className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-zinc-900">Tomamos tu Usado</p>
+                <p className="text-[11px] text-zinc-500">Tasación transparente como parte de pago.</p>
+              </div>
             </div>
           </div>
         </div>
@@ -446,16 +478,16 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
             <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
               {[
                 { id: 'TODOS', label: 'Todos los Vehículos' },
-                { id: 'CERO_KM', label: '0 Kilómetros' },
-                { id: 'USADO', label: 'Usados Seleccionados' },
+                { id: 'CERO_KM', label: '0KM Nuevos' },
+                { id: 'USADO', label: 'Seminuevos Certificados' },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setFiltroCondicion(tab.id)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                     filtroCondicion === tab.id
-                      ? 'bg-[#18181b] text-white shadow-xs'
-                      : 'bg-white text-gray-700 hover:text-gray-900 border border-gray-200/80 hover:bg-gray-50'
+                      ? 'bg-zinc-900 text-white shadow-xs'
+                      : 'bg-white text-zinc-700 hover:text-zinc-900 border border-zinc-200/80 hover:bg-zinc-50'
                   }`}
                 >
                   {tab.label}
@@ -965,24 +997,24 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
         </div>
       )}
 
-      {/* Footer Público */}
-      <footer className="mt-auto border-t border-gray-200 bg-white py-12 px-4 sm:px-6 lg:px-8 text-xs text-gray-500">
+      {/* Footer Profesional */}
+      <footer className="mt-auto border-t border-zinc-200 bg-white py-12 px-4 sm:px-6 lg:px-8 text-xs text-zinc-500">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
           <div className="space-y-1">
-            <p className="font-extrabold text-sm text-gray-900">Concesionaria Oficial · Auto CRM</p>
-            <p className="text-gray-500 max-w-md">
-              Venta de unidades 0km multimarca, usados seleccionados con peritaje mecánico y financiación prendaria en cuotas fijas o UVA.
+            <p className="font-extrabold text-sm text-zinc-900">Concesionaria Oficial · Red Comercial Automotriz</p>
+            <p className="text-zinc-500 max-w-md">
+              Venta de unidades 0KM y seminuevos certificados con peritaje mecánico oficial, garantía escrita y financiación prendaria bancaria.
             </p>
           </div>
 
-          <div className="flex items-center gap-6 text-gray-600 font-medium">
+          <div className="flex items-center gap-6 text-zinc-600 font-medium">
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-gray-400" />
-              <span>Tel: (011) 4000-8800</span>
+              <Phone className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Línea Directa: (011) 4000-8800</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-gray-400" />
-              <span>Lun a Sáb 9:00 a 19:30</span>
+              <Clock className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Lunes a Sábados 9:00 a 19:30</span>
             </span>
           </div>
         </div>
