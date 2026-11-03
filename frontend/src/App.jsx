@@ -13,9 +13,21 @@ import { TasacionesView } from './views/TasacionesView';
 import { UsuariosAdminView } from './views/UsuariosAdminView';
 import { Construction, ShieldAlert } from 'lucide-react';
 
+const MODULO_ALIASES = {
+  'Catálogo e Inventario': 'Catálogo de Vehículos',
+  'Padrón de Contactos': 'Contactos',
+  'Facturación y Cobranzas': 'Facturación y Caja',
+  'Test Drives (Pruebas)': 'Pruebas de Manejo (Test Drives)',
+  'Tasaciones de Usados': 'Tasaciones y Permutas',
+};
+
 const MainLayout = () => {
   const { token, usuario, menus, cargando } = useAuth();
-  const [vistaActiva, setVistaActiva] = useState('Dashboard');
+  const [vistaActiva, setVistaActivaState] = useState('Dashboard');
+
+  const setVistaActiva = (modulo) => {
+    setVistaActivaState(MODULO_ALIASES[modulo] || modulo);
+  };
 
   // Si se cierra sesión, resetear la vista activa a Dashboard
   useEffect(() => {

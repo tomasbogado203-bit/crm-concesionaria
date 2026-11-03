@@ -13,18 +13,19 @@ import {
 
 export const DashboardView = ({ onNavigate }) => {
   const { usuario } = useAuth();
+  const esAdmin = usuario?.perfiles?.includes('ADMIN');
 
   const modulos = [
     {
       titulo: 'Catálogo de Vehículos',
       descripcion: 'Inventario de 0km y usados disponibles en salón y depósito.',
-      modulo: 'Catálogo e Inventario',
+      modulo: 'Catálogo de Vehículos',
       icono: Car,
     },
     {
       titulo: 'Padrón de Contactos',
       descripcion: 'Gestión unificada de prospectos, clientes particulares y empresas.',
-      modulo: 'Padrón de Contactos',
+      modulo: 'Contactos',
       icono: Users,
     },
     {
@@ -36,21 +37,31 @@ export const DashboardView = ({ onNavigate }) => {
     {
       titulo: 'Facturación Electrónica',
       descripcion: 'Emisión con CAE AFIP y administración de cobranzas.',
-      modulo: 'Facturación y Cobranzas',
+      modulo: 'Facturación y Caja',
       icono: Receipt,
     },
     {
       titulo: 'Pruebas de Manejo',
       descripcion: 'Agenda de test drives, validación de licencias y feedback.',
-      modulo: 'Test Drives (Pruebas)',
+      modulo: 'Pruebas de Manejo (Test Drives)',
       icono: Clock,
     },
     {
       titulo: 'Tasaciones y Permutas',
       descripcion: 'Peritaje técnico mecánico e ingreso de usados a stock.',
-      modulo: 'Tasaciones de Usados',
+      modulo: 'Tasaciones y Permutas',
       icono: Wrench,
     },
+    ...(esAdmin
+      ? [
+          {
+            titulo: 'Gestión de Personal',
+            descripcion: 'Alta de nuevos usuarios, vendedores y control de accesos.',
+            modulo: 'Gestión de Personal',
+            icono: ShieldCheck,
+          },
+        ]
+      : []),
   ];
 
   return (
