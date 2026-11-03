@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Car, Lock, Mail, ArrowRight, ShieldCheck } from 'lucide-react';
 
-export const LoginView = () => {
+export const LoginView = ({ onVerCatalogoPublico }) => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -89,6 +89,21 @@ export const LoginView = () => {
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>
+
+        {/* Acceso directo al Catálogo Público para Visitantes */}
+        {onVerCatalogoPublico && (
+          <div className="mt-5 pt-5 border-t border-gray-100 text-center">
+            <p className="text-xs text-gray-500 mb-2">¿Sos cliente o visitás la concesionaria?</p>
+            <button
+              type="button"
+              onClick={onVerCatalogoPublico}
+              className="w-full py-2.5 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+            >
+              <Car className="w-4 h-4 text-emerald-600" />
+              <span>Ver Catálogo de Vehículos (Salón Virtual)</span>
+            </button>
+          </div>
+        )}
 
         {/* Aviso de seguridad y política de registro */}
         <div className="mt-8 pt-6 border-t border-gray-100 flex items-start gap-3 bg-gray-50/70 p-3.5 rounded-2xl">

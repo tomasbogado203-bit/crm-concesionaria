@@ -11,6 +11,7 @@ export const crearVehiculoSchema = z.object({
   precioVenta: z.number().positive('El precio de venta debe ser positivo'),
   costoCompra: z.number().positive().optional(),
   estado: z.enum(['DISPONIBLE', 'RESERVADO', 'VENDIDO']).default('DISPONIBLE'),
+  imagenUrl: z.string().optional().nullable().or(z.literal('')),
 });
 
 export const actualizarVehiculoSchema = crearVehiculoSchema.partial();

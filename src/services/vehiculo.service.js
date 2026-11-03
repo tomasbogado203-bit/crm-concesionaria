@@ -18,6 +18,7 @@ export const listarVehiculos = async (filtros = {}, verCostos = false) => {
     kilometraje: true,
     precioVenta: true,
     costoCompra: verCostos,
+    imagenUrl: true,
     estado: true,
     createdAt: true,
   };
@@ -26,6 +27,33 @@ export const listarVehiculos = async (filtros = {}, verCostos = false) => {
     where,
     select,
     orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const listarCatalogoPublico = async (filtros = {}) => {
+  const where = {
+    estado: 'DISPONIBLE',
+  };
+
+  if (filtros.condicion && filtros.condicion !== 'TODOS') where.condicion = filtros.condicion;
+  if (filtros.marca) where.marca = { contains: filtros.marca };
+
+  return await prisma.vehiculo.findMany({
+    where,
+    select: {
+      id: true,
+      vin: true,
+      marca: true,
+      modelo: true,
+      version: true,
+      anio: true,
+      condicion: true,
+      kilometraje: true,
+      precioVenta: true,
+      imagenUrl: true,
+      estado: true,
+    },
+    orderBy: [{ condicion: 'asc' }, { precioVenta: 'asc' }],
   });
 };
 
@@ -43,6 +71,7 @@ export const obtenerVehiculoPorId = async (id, verCostos = false) => {
       kilometraje: true,
       precioVenta: true,
       costoCompra: verCostos,
+      imagenUrl: true,
       estado: true,
       createdAt: true,
       oportunidades: {

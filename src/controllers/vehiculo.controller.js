@@ -10,6 +10,15 @@ export const listar = async (req, res, next) => {
   }
 };
 
+export const listarPublico = async (req, res, next) => {
+  try {
+    const vehiculos = await vehiculoService.listarCatalogoPublico(req.query);
+    res.status(200).json(vehiculos);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const obtenerPorId = async (req, res, next) => {
   try {
     const esAdmin = req.user?.perfiles?.includes('ADMIN');

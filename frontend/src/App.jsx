@@ -11,6 +11,7 @@ import { FacturacionView } from './views/FacturacionView';
 import { TestDrivesView } from './views/TestDrivesView';
 import { TasacionesView } from './views/TasacionesView';
 import { UsuariosAdminView } from './views/UsuariosAdminView';
+import { CatalogoPublicoView } from './views/CatalogoPublicoView';
 import { Construction, ShieldAlert } from 'lucide-react';
 
 const MODULO_ALIASES = {
@@ -24,6 +25,10 @@ const MODULO_ALIASES = {
 const MainLayout = () => {
   const { token, usuario, menus, cargando } = useAuth();
   const [vistaActiva, setVistaActivaState] = useState('Dashboard');
+  const [modoPublico, setModoPublico] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('modo') === 'publico' || params.get('catalogo') === 'publico';
+  });
 
   const setVistaActiva = (modulo) => {
     setVistaActivaState(MODULO_ALIASES[modulo] || modulo);
@@ -62,8 +67,19 @@ const MainLayout = () => {
     );
   }
 
+  // Vista exclusiva para clientes y visitantes del salón de ventas
+  if (modoPublico) {
+    return (
+      <CatalogoPublicoView
+        onVolverLogin={() => setModoPublico(false)}
+        usuarioLogueado={token ? usuario : null}
+        onVolverCRM={() => setModoPublico(false)}
+      />
+    );
+  }
+
   if (!token) {
-    return <LoginView />;
+    return <LoginView onVerCatalogoPublico={() => setModoPublico(true)} />;
   }
 
   const renderVista = () => {
@@ -108,7 +124,7 @@ const MainLayout = () => {
       case 'Ventas y Oportunidades':
         return <OportunidadesView />;
       case 'Catálogo de Vehículos':
-        return <VehiculosView />;
+        return <VehiculosView onVerModoPublico={() => setModoPublico(true)} />;
       case 'Pruebas de Manejo (Test Drives)':
         return <TestDrivesView />;
       case 'Tasaciones y Permutas':
@@ -137,7 +153,11 @@ const MainLayout = () => {
     <div className="flex h-screen bg-[#f0f2f5] text-gray-900 overflow-hidden font-sans">
       <Sidebar vistaActiva={vistaActiva} setVistaActiva={setVistaActiva} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Navbar titulo={vistaActiva} onNavigate={setVistaActiva} />
+        <Navbar
+          titulo={vistaActiva}
+          onNavigate={setVistaActiva}
+          onAbrirModoPublico={() => setModoPublico(true)}
+        />
         <main className="flex-1 overflow-y-auto custom-scrollbar bg-[#f0f2f5]">
           {renderVista()}
         </main>

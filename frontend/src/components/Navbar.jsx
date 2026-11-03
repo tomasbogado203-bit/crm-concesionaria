@@ -15,10 +15,12 @@ import {
   Inbox,
   User,
   LogOut,
+  Car,
+  Eye,
 } from 'lucide-react';
 import { SimuladorFinancieroModal } from './SimuladorFinancieroModal';
 
-export const Navbar = ({ titulo, onNavigate }) => {
+export const Navbar = ({ titulo, onNavigate, onAbrirModoPublico }) => {
   const { usuario, logout } = useAuth();
   const [notificaciones, setNotificaciones] = useState([]);
   const [leidas, setLeidas] = useState([]);
@@ -166,6 +168,18 @@ export const Navbar = ({ titulo, onNavigate }) => {
             <span>Simulador</span>
           </button>
 
+          {/* Quick Showroom Link */}
+          {onAbrirModoPublico && (
+            <button
+              onClick={onAbrirModoPublico}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-semibold transition cursor-pointer shadow-2xs"
+              title="Abrir vista pública del salón / Modo Totem para clientes"
+            >
+              <Eye className="w-3.5 h-3.5 text-blue-600" />
+              <span>Salón Clientes</span>
+            </button>
+          )}
+
           {/* Notifications Bell */}
           <div className="relative" ref={menuRef}>
             <button
@@ -267,7 +281,20 @@ export const Navbar = ({ titulo, onNavigate }) => {
                   </div>
                 </div>
 
-                <div className="p-1.5">
+                <div className="p-1.5 space-y-0.5">
+                  {onAbrirModoPublico && (
+                    <button
+                      onClick={() => {
+                        setUserMenuAbierto(false);
+                        onAbrirModoPublico();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 rounded-xl transition cursor-pointer"
+                    >
+                      <Car className="w-4 h-4 text-gray-500" />
+                      <span>Ver Salón de Clientes</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => {
                       setUserMenuAbierto(false);

@@ -11,11 +11,22 @@ import {
   X,
   Download,
   Calculator,
+  Eye,
+  Image as ImageIcon,
+  ExternalLink,
 } from 'lucide-react';
 import { exportToCSV } from '../utils/exportCsv';
 import { SimuladorFinancieroModal } from '../components/SimuladorFinancieroModal';
 
-export const VehiculosView = () => {
+const FOTOS_PRESET = [
+  { nombre: 'SUV', url: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80' },
+  { nombre: 'Pick-up', url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80' },
+  { nombre: 'Sedán', url: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80' },
+  { nombre: 'Hatchback', url: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=1200&q=80' },
+  { nombre: 'Coupé', url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80' },
+];
+
+export const VehiculosView = ({ onVerModoPublico }) => {
   const [vehiculos, setVehiculos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtroCondicion, setFiltroCondicion] = useState('TODOS');
@@ -32,6 +43,7 @@ export const VehiculosView = () => {
   const [kilometraje, setKilometraje] = useState(0);
   const [precioVenta, setPrecioVenta] = useState('');
   const [costoCompra, setCostoCompra] = useState('');
+  const [imagenUrl, setImagenUrl] = useState('');
   const [guardando, setGuardando] = useState(false);
 
   const cargarVehiculos = async () => {
@@ -66,6 +78,7 @@ export const VehiculosView = () => {
           kilometraje: Number(kilometraje),
           precioVenta: Number(precioVenta),
           costoCompra: costoCompra ? Number(costoCompra) : undefined,
+          imagenUrl: imagenUrl.trim() || undefined,
           estado: 'DISPONIBLE',
         }),
       });
@@ -77,6 +90,7 @@ export const VehiculosView = () => {
       setVersion('');
       setPrecioVenta('');
       setCostoCompra('');
+      setImagenUrl('');
       cargarVehiculos();
     } catch (err) {
       alert(err.message || 'Error al dar de alta el vehículo');
@@ -113,10 +127,21 @@ export const VehiculosView = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 tracking-tight">Catálogo e Inventario de Stock</h2>
-          <p className="text-xs text-gray-500 mt-0.5">Control de unidades 0km y usados disponibles en salón y depósito.</p>
+          <p className="text-xs text-gray-500 mt-0.5">Control de unidades 0km y usados disponibles en salón y depósito con soporte fotográfico.</p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          {onVerModoPublico && (
+            <button
+              onClick={onVerModoPublico}
+              className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-2xs"
+              title="Abrir la pantalla pública del catálogo para clientes o modo totem"
+            >
+              <Eye className="w-4 h-4 text-blue-600" />
+              <span>Ver Salón Público (Visitantes)</span>
+            </button>
+          )}
+
           <button
             onClick={handleExportarCSV}
             className="px-3.5 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-semibold flex items-center gap-2 transition cursor-pointer shadow-2xs"
@@ -165,45 +190,70 @@ export const VehiculosView = () => {
           vehiculosFiltrados.map((v) => (
             <div
               key={v.id}
-              className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-gray-300 transition flex flex-col justify-between"
+              className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-gray-300 transition flex flex-col justify-between group"
             >
-              <div className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                    v.condicion === 'CERO_KM'
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : 'bg-blue-50 text-blue-700 border-blue-200'
-                  }`}>
-                    {v.condicion === 'CERO_KM' ? '0 KM' : `${v.kilometraje.toLocaleString()} KM`}
-                  </span>
-
-                  <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                    v.estado === 'DISPONIBLE'
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                      : v.estado === 'RESERVADO'
-                      ? 'bg-amber-50 text-amber-700 border-amber-200 animate-pulse'
-                      : 'bg-gray-100 text-gray-600 border-gray-200'
-                  }`}>
-                    {v.estado}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-base font-bold text-gray-900 tracking-tight">{v.marca} {v.modelo}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{v.version} · Año {v.anio}</p>
-                </div>
-
-                <div className="bg-gray-50/70 p-3 rounded-xl space-y-1.5 text-[11px] font-mono border border-gray-100">
-                  <div className="flex justify-between text-gray-500">
-                    <span>Chasis / VIN:</span>
-                    <span className="text-gray-800 font-semibold">{v.vin}</span>
-                  </div>
-                  {v.costoCompra && (
-                    <div className="flex justify-between text-indigo-600 font-medium">
-                      <span>Costo compra:</span>
-                      <span>${Number(v.costoCompra).toLocaleString('es-AR')}</span>
+              <div>
+                {/* Imagen del Vehículo */}
+                <div className="relative aspect-16/9 bg-gray-100 overflow-hidden">
+                  {v.imagenUrl ? (
+                    <img
+                      src={v.imagenUrl}
+                      alt={`${v.marca} ${v.modelo}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80';
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+                      <Car className="w-10 h-10" />
+                      <span className="text-[10px] mt-1 font-medium">Sin imagen</span>
                     </div>
                   )}
+
+                  {/* Badges superiores sobre la imagen */}
+                  <div className="absolute top-2.5 left-2.5">
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
+                      v.condicion === 'CERO_KM'
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-blue-600 text-white'
+                    }`}>
+                      {v.condicion === 'CERO_KM' ? '0 KM' : `${v.kilometraje.toLocaleString()} KM`}
+                    </span>
+                  </div>
+
+                  <div className="absolute top-2.5 right-2.5">
+                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
+                      v.estado === 'DISPONIBLE'
+                        ? 'bg-emerald-500/90 text-white'
+                        : v.estado === 'RESERVADO'
+                        ? 'bg-amber-500 text-white animate-pulse'
+                        : 'bg-gray-800 text-white'
+                    }`}>
+                      {v.estado}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 space-y-3">
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900 tracking-tight">{v.marca} {v.modelo}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">{v.version} · Año {v.anio}</p>
+                  </div>
+
+                  <div className="bg-gray-50/70 p-3 rounded-xl space-y-1.5 text-[11px] font-mono border border-gray-100">
+                    <div className="flex justify-between text-gray-500">
+                      <span>Chasis / VIN:</span>
+                      <span className="text-gray-800 font-semibold">{v.vin}</span>
+                    </div>
+                    {v.costoCompra && (
+                      <div className="flex justify-between text-indigo-600 font-medium">
+                        <span>Costo compra:</span>
+                        <span>${Number(v.costoCompra).toLocaleString('es-AR')}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -349,6 +399,65 @@ export const VehiculosView = () => {
                     className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
                   />
                 </div>
+              </div>
+
+              {/* Fotografía del Vehículo */}
+              <div className="space-y-1.5 p-3 bg-gray-50/70 border border-gray-100 rounded-2xl">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-gray-700">
+                    Fotografía / Imagen del Vehículo
+                  </label>
+                  <span className="text-[10px] text-gray-400">Opcional o presets</span>
+                </div>
+
+                <input
+                  type="url"
+                  value={imagenUrl}
+                  onChange={(e) => setImagenUrl(e.target.value)}
+                  placeholder="https://images.unsplash.com/photo-..."
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                />
+
+                {/* Presets rápidos de fotos */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[10px] text-gray-500 font-medium mr-1">Presets:</span>
+                  {FOTOS_PRESET.map((p) => (
+                    <button
+                      key={p.nombre}
+                      type="button"
+                      onClick={() => setImagenUrl(p.url)}
+                      className="px-2 py-0.5 rounded-lg bg-white hover:bg-gray-100 border border-gray-200 text-[10px] font-semibold text-gray-700 transition cursor-pointer shadow-2xs"
+                    >
+                      + {p.nombre}
+                    </button>
+                  ))}
+                  {imagenUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setImagenUrl('')}
+                      className="px-2 py-0.5 rounded-lg text-[10px] font-medium text-rose-600 hover:bg-rose-50 transition cursor-pointer ml-auto"
+                    >
+                      Limpiar foto
+                    </button>
+                  )}
+                </div>
+
+                {/* Vista previa de imagen */}
+                {imagenUrl && (
+                  <div className="mt-2 relative aspect-16/9 rounded-xl overflow-hidden border border-gray-200 bg-gray-100">
+                    <img
+                      src={imagenUrl}
+                      alt="Vista previa"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                    <span className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded-md">
+                      Vista previa de fotografía
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-3 border-t border-gray-100">

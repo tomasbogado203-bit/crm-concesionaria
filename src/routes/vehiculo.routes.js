@@ -6,6 +6,9 @@ import { crearVehiculoSchema, actualizarVehiculoSchema } from '../schemas/vehicu
 
 const router = Router();
 
+// RUTA PÚBLICA: Salón virtual para clientes y visitantes (no requiere token)
+router.get('/publico', vehiculoController.listarPublico);
+
 router.use(autenticarToken);
 
 router.get('/', autorizarPerfiles('ADMIN', 'VENDEDOR', 'FACTURADOR', 'TASADOR'), vehiculoController.listar);
