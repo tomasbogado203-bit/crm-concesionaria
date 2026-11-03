@@ -13,16 +13,20 @@ import {
   ArrowUpRight,
   X,
   Inbox,
+  User,
+  LogOut,
 } from 'lucide-react';
 import { SimuladorFinancieroModal } from './SimuladorFinancieroModal';
 
 export const Navbar = ({ titulo, onNavigate }) => {
-  const { usuario } = useAuth();
+  const { usuario, logout } = useAuth();
   const [notificaciones, setNotificaciones] = useState([]);
   const [leidas, setLeidas] = useState([]);
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const [userMenuAbierto, setUserMenuAbierto] = useState(false);
   const [simuladorAbierto, setSimuladorAbierto] = useState(false);
   const menuRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   // Consulta alertas operativas activas
   const cargarAlertas = async () => {
@@ -104,6 +108,9 @@ export const Navbar = ({ titulo, onNavigate }) => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuAbierto(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuAbierto(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -238,9 +245,42 @@ export const Navbar = ({ titulo, onNavigate }) => {
             )}
           </div>
 
-          {/* User Avatar Circle */}
-          <div className="w-9 h-9 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shadow-2xs cursor-pointer">
-            {usuario?.nombreCompleto?.[0] || 'U'}
+          {/* User Avatar Circle & Dropdown */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setUserMenuAbierto(!userMenuAbierto)}
+              className="w-9 h-9 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs shadow-2xs hover:bg-black transition cursor-pointer"
+              title="Opciones de cuenta"
+            >
+              {usuario?.nombreCompleto?.[0] || 'U'}
+            </button>
+
+            {userMenuAbierto && (
+              <div className="absolute right-0 top-12 w-64 bg-white border border-gray-200/90 rounded-2xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100 font-sans">
+                <div className="px-4 py-2.5 border-b border-gray-100">
+                  <p className="text-xs font-bold text-gray-900 truncate">
+                    {usuario?.nombreCompleto || 'Usuario'}
+                  </p>
+                  <p className="text-[11px] text-gray-500 truncate">{usuario?.email}</p>
+                  <div className="mt-1.5 inline-block px-2 py-0.5 rounded-full bg-gray-100 text-[10px] font-semibold text-gray-700 uppercase">
+                    {usuario?.perfiles?.[0] || 'Colaborador'}
+                  </div>
+                </div>
+
+                <div className="p-1.5">
+                  <button
+                    onClick={() => {
+                      setUserMenuAbierto(false);
+                      logout();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 shrink-0" />
+                    <span>Cerrar Sesión</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
