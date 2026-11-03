@@ -164,4 +164,20 @@ describe('Pruebas de Integración de Endpoints y Seguridad (Supertest + Jest - C
       expect(res.status).toBe(400);
     });
   });
+
+  describe('5. Salón Virtual Público (Endpoints accesibles sin autenticación)', () => {
+    it('POST /vehiculos/publico/solicitud sin campos requeridos debe responder 400 sin pedir JWT', async () => {
+      const res = await request(app)
+        .post('/vehiculos/publico/solicitud')
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Error de validación');
+      expect(Array.isArray(res.body.detalles)).toBe(true);
+      const camposConError = res.body.detalles.map((d) => d.campo);
+      expect(camposConError).toContain('nombre');
+      expect(camposConError).toContain('telefono');
+      expect(camposConError).toContain('vehiculoId');
+    });
+  });
 });

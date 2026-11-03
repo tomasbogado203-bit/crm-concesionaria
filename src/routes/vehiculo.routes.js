@@ -2,12 +2,17 @@ import { Router } from 'express';
 import * as vehiculoController from '../controllers/vehiculo.controller.js';
 import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
-import { crearVehiculoSchema, actualizarVehiculoSchema } from '../schemas/vehiculo.schema.js';
+import {
+  crearVehiculoSchema,
+  actualizarVehiculoSchema,
+  solicitudPublicaSchema,
+} from '../schemas/vehiculo.schema.js';
 
 const router = Router();
 
-// RUTA PÚBLICA: Salón virtual para clientes y visitantes (no requiere token)
+// RUTAS PÚBLICAS: Salón virtual para clientes y visitantes (no requieren token)
 router.get('/publico', vehiculoController.listarPublico);
+router.post('/publico/solicitud', validarSchema(solicitudPublicaSchema), vehiculoController.crearSolicitudPublica);
 
 router.use(autenticarToken);
 

@@ -52,3 +52,12 @@ export const actualizar = async (req, res, next) => {
     next(error);
   }
 };
+
+export const crearSolicitudPublica = async (req, res, next) => {
+  try {
+    const resultado = await vehiculoService.crearSolicitudPublica(req.body);
+    res.status(201).json(resultado);
+  } catch (error) {
+    next(error);
+  }
+};

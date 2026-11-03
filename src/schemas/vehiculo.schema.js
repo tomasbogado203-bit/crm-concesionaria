@@ -15,3 +15,19 @@ export const crearVehiculoSchema = z.object({
 });
 
 export const actualizarVehiculoSchema = crearVehiculoSchema.partial();
+
+export const solicitudPublicaSchema = z.object({
+  tipo: z.enum(['TEST_DRIVE', 'CONSULTA', 'COTIZACION', 'PERMUTA']).default('CONSULTA'),
+  nombre: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  apellido: z.string().optional().nullable(),
+  telefono: z.string().min(6, 'El teléfono es obligatorio'),
+  email: z.string().email('Email inválido').optional().nullable().or(z.literal('')),
+  dni: z.string().optional().nullable(),
+  vehiculoId: z.number().int().positive('ID de vehículo inválido'),
+  mensaje: z.string().optional().nullable(),
+  fechaPreferencia: z.string().optional().nullable(),
+  permutaMarca: z.string().optional().nullable(),
+  permutaModelo: z.string().optional().nullable(),
+  permutaAnio: z.number().optional().nullable(),
+  permutaKilometraje: z.number().optional().nullable(),
+});
