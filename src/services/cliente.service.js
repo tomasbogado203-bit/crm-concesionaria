@@ -1,17 +1,32 @@
 import prisma from '../config/prisma.js';
 
-export const listarClientes = async () => {
-  return await prisma.contacto.findMany({
-    where: {
-      snActivo: true,
-      roles: {
-        some: {
-          rol: {
-            descripcionRol: 'Cliente',
-          },
+const relacionUsuarioCliente = (usuarioId) => ({
+  OR: [
+    { oportunidades: { some: { usuarioId: Number(usuarioId) } } },
+    { interacciones: { some: { usuarioId: Number(usuarioId) } } },
+    { facturas: { some: { usuarioId: Number(usuarioId) } } },
+    { tasaciones: { some: { usuarioId: Number(usuarioId) } } },
+  ],
+});
+
+export const listarClientes = async (usuarioId, esAdmin = false) => {
+  const where = {
+    snActivo: true,
+    roles: {
+      some: {
+        rol: {
+          descripcionRol: 'Cliente',
         },
       },
     },
+  };
+
+  if (!esAdmin && usuarioId) {
+    where.OR = relacionUsuarioCliente(usuarioId).OR;
+  }
+
+  return await prisma.contacto.findMany({
+    where,
     include: {
       roles: {
         include: {
@@ -68,7 +83,32 @@ export const crearCliente = async (datosCliente) => {
   });
 };
 
-export const obtenerClientePorId = async (id) => {
+export const obtenerClientePorId = async (id, usuarioId = null, esAdmin = false) => {
+  const clienteActual = await prisma.contacto.findFirst({
+    where: { id: Number(id) },
+  });
+
+  if (!clienteActual) {
+    const error = new Error('Cliente no encontrado');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!esAdmin && usuarioId) {
+    const clienteAccesible = await prisma.contacto.findFirst({
+      where: {
+        id: Number(id),
+        ...relacionUsuarioCliente(usuarioId),
+      },
+    });
+
+    if (!clienteAccesible) {
+      const error = new Error('Acceso denegado: no tiene permisos sobre este cliente');
+      error.statusCode = 403;
+      throw error;
+    }
+  }
+
   const cliente = await prisma.contacto.findFirst({
     where: {
       id: Number(id),
@@ -97,8 +137,8 @@ export const obtenerClientePorId = async (id) => {
   return cliente;
 };
 
-export const actualizarCliente = async (id, datosActualizados) => {
-  await obtenerClientePorId(id);
+export const actualizarCliente = async (id, datosActualizados, usuarioId = null, esAdmin = false) => {
+  await obtenerClientePorId(id, usuarioId, esAdmin);
 
   const datosPrisma = {};
   if (datosActualizados.nombre !== undefined) datosPrisma.nombres = datosActualizados.nombre;
@@ -116,8 +156,8 @@ export const actualizarCliente = async (id, datosActualizados) => {
   });
 };
 
-export const eliminarCliente = async (id) => {
-  await obtenerClientePorId(id);
+export const eliminarCliente = async (id, usuarioId = null, esAdmin = false) => {
+  await obtenerClientePorId(id, usuarioId, esAdmin);
 
   // Baja lógica (Soft delete): snActivo = false
   return await prisma.contacto.update({
@@ -126,8 +166,8 @@ export const eliminarCliente = async (id) => {
   });
 };
 
-export const registrarInteraccion = async (clienteId, { canal, resumen }, usuarioId) => {
-  await obtenerClientePorId(clienteId);
+export const registrarInteraccion = async (clienteId, { canal, resumen }, usuarioId, esAdmin = false) => {
+  await obtenerClientePorId(clienteId, usuarioId, esAdmin);
 
   return await prisma.interaccion.create({
     data: {
@@ -144,8 +184,8 @@ export const registrarInteraccion = async (clienteId, { canal, resumen }, usuari
   });
 };
 
-export const enviarCorreoACliente = async (clienteId, { asunto, mensaje, plantilla }, usuarioId) => {
-  const cliente = await obtenerClientePorId(clienteId);
+export const enviarCorreoACliente = async (clienteId, { asunto, mensaje, plantilla }, usuarioId, esAdmin = false) => {
+  const cliente = await obtenerClientePorId(clienteId, usuarioId, esAdmin);
 
   if (!cliente.email) {
     const error = new Error('El contacto no posee una dirección de correo electrónico registrada');

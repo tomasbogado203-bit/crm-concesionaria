@@ -2,7 +2,8 @@ import * as facturaService from '../services/factura.service.js';
 
 export const listar = async (req, res, next) => {
   try {
-    const facturas = await facturaService.listarFacturas();
+    const esAdmin = req.user?.perfiles?.includes('ADMIN');
+    const facturas = await facturaService.listarFacturas(req.user.id, esAdmin);
     res.status(200).json(facturas);
   } catch (error) {
     next(error);
@@ -11,7 +12,8 @@ export const listar = async (req, res, next) => {
 
 export const obtenerPorId = async (req, res, next) => {
   try {
-    const factura = await facturaService.obtenerFacturaPorId(req.params.id);
+    const esAdmin = req.user?.perfiles?.includes('ADMIN');
+    const factura = await facturaService.obtenerFacturaPorId(req.params.id, req.user.id, esAdmin);
     res.status(200).json(factura);
   } catch (error) {
     next(error);
@@ -32,7 +34,8 @@ export const emitir = async (req, res, next) => {
 
 export const registrarPago = async (req, res, next) => {
   try {
-    const pago = await facturaService.registrarPago(req.params.id, req.body);
+    const esAdmin = req.user?.perfiles?.includes('ADMIN');
+    const pago = await facturaService.registrarPago(req.params.id, req.body, req.user.id, esAdmin);
     res.status(201).json({
       mensaje: 'Cobro registrado exitosamente en caja',
       pago,
@@ -44,7 +47,8 @@ export const registrarPago = async (req, res, next) => {
 
 export const anular = async (req, res, next) => {
   try {
-    const anulada = await facturaService.anularFactura(req.params.id);
+    const esAdmin = req.user?.perfiles?.includes('ADMIN');
+    const anulada = await facturaService.anularFactura(req.params.id, req.user.id, esAdmin);
     res.status(200).json({
       mensaje: 'Factura anulada exitosamente y vehículo liberado al stock',
       factura: anulada,

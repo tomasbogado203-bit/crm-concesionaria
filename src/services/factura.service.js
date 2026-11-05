@@ -1,7 +1,28 @@
 import prisma from '../config/prisma.js';
 
-export const listarFacturas = async () => {
+const accesoFacturaUsuario = (usuarioId) => ({
+  OR: [
+    { usuarioId: Number(usuarioId) },
+    {
+      cliente: {
+        OR: [
+          { oportunidades: { some: { usuarioId: Number(usuarioId) } } },
+          { interacciones: { some: { usuarioId: Number(usuarioId) } } },
+        ],
+      },
+    },
+  ],
+});
+
+export const listarFacturas = async (usuarioId, esAdmin = false) => {
+  const where = {};
+
+  if (!esAdmin && usuarioId) {
+    where.OR = accesoFacturaUsuario(usuarioId).OR;
+  }
+
   return await prisma.factura.findMany({
+    where,
     include: {
       cliente: {
         select: {
@@ -30,7 +51,32 @@ export const listarFacturas = async () => {
   });
 };
 
-export const obtenerFacturaPorId = async (id) => {
+export const obtenerFacturaPorId = async (id, usuarioId = null, esAdmin = false) => {
+  const facturaBase = await prisma.factura.findUnique({
+    where: { id: Number(id) },
+  });
+
+  if (!facturaBase) {
+    const error = new Error('Factura no encontrada');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!esAdmin && usuarioId) {
+    const facturaAccesible = await prisma.factura.findFirst({
+      where: {
+        id: Number(id),
+        ...accesoFacturaUsuario(usuarioId),
+      },
+    });
+
+    if (!facturaAccesible) {
+      const error = new Error('Acceso denegado: no tiene permisos sobre esta factura');
+      error.statusCode = 403;
+      throw error;
+    }
+  }
+
   const factura = await prisma.factura.findUnique({
     where: { id: Number(id) },
     include: {
@@ -185,7 +231,9 @@ export const emitirFactura = async (datos, usuarioId) => {
   });
 };
 
-export const registrarPago = async (facturaId, datos) => {
+export const registrarPago = async (facturaId, datos, usuarioId = null, esAdmin = false) => {
+  await obtenerFacturaPorId(facturaId, usuarioId, esAdmin);
+
   const factura = await prisma.factura.findUnique({
     where: { id: Number(facturaId) },
     include: { pagos: true },
@@ -237,7 +285,9 @@ export const registrarPago = async (facturaId, datos) => {
   });
 };
 
-export const anularFactura = async (id) => {
+export const anularFactura = async (id, usuarioId = null, esAdmin = false) => {
+  await obtenerFacturaPorId(id, usuarioId, esAdmin);
+
   const factura = await prisma.factura.findUnique({
     where: { id: Number(id) },
     include: { detalles: true, pagos: true },
