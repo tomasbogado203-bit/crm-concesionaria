@@ -30,6 +30,13 @@ describe('Pruebas de Integración de Endpoints y Seguridad (Supertest + Jest - C
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('ok');
     });
+
+    it('GET / debe responder 200 y explicar que es la API', async () => {
+      const res = await request(app).get('/');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('mensaje');
+      expect(res.body.mensaje).toContain('CRM Concesionaria');
+    });
   });
 
   describe('2. Control de Acceso: Bloqueo sin autenticación (401)', () => {

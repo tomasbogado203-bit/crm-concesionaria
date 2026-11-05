@@ -22,6 +22,26 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', mensaje: 'CRM Concesionaria API funcionando' });
 });
 
+// Ruta raíz para que la API responda de forma útil cuando se abre la URL principal
+app.get('/', (req, res) => {
+  res.status(200).json({
+    mensaje: 'CRM Concesionaria API funcionando',
+    version: '1.0.0',
+    health: '/health',
+    endpoints: [
+      'POST /auth/registro',
+      'POST /auth/login',
+      'GET /clientes',
+      'POST /clientes',
+      'GET /vehiculos',
+      'GET /oportunidades',
+      'GET /facturas',
+      'GET /test-drives',
+      'GET /tasaciones'
+    ]
+  });
+});
+
 // Rutas principales — un único punto de montaje
 app.use('/', routes);
 
