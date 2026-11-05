@@ -2,7 +2,18 @@ import * as authService from '../services/auth.service.js';
 
 export const registro = async (req, res, next) => {
   try {
-    const usuario = await authService.registrarUsuario(req.body);
+    const rolSolicitado = String(req.body?.rol || '').trim().toUpperCase();
+    if (rolSolicitado === 'ADMIN') {
+      return res.status(403).json({
+        error: 'No está permitido crear usuarios con perfil ADMIN desde registro público.',
+      });
+    }
+
+    const usuario = await authService.registrarUsuario({
+      ...req.body,
+      rol: 'VENDEDOR',
+    });
+
     res.status(201).json({
       mensaje: 'Usuario registrado exitosamente con rol comercial',
       usuario,

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as clienteController from '../controllers/cliente.controller.js';
-import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
+import { autenticarToken, requerirPerfil } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
 import {
   crearClienteSchema,
@@ -14,21 +14,21 @@ const router = Router();
 // Todas las rutas de clientes requieren estar autenticado
 router.use(autenticarToken);
 
-router.get('/', autorizarPerfiles('ADMIN', 'VENDEDOR', 'FACTURADOR'), clienteController.obtenerClientes);
-router.post('/', autorizarPerfiles('ADMIN', 'VENDEDOR'), validarSchema(crearClienteSchema), clienteController.crearNuevoCliente);
+router.get('/', requerirPerfil('ADMIN', 'VENDEDOR', 'FACTURADOR'), clienteController.obtenerClientes);
+router.post('/', requerirPerfil('ADMIN', 'VENDEDOR'), validarSchema(crearClienteSchema), clienteController.crearNuevoCliente);
 
-router.get('/:id', autorizarPerfiles('ADMIN', 'VENDEDOR', 'FACTURADOR'), clienteController.obtenerFichaCliente);
-router.put('/:id', autorizarPerfiles('ADMIN', 'VENDEDOR'), validarSchema(actualizarClienteSchema), clienteController.actualizarCliente);
-router.delete('/:id', autorizarPerfiles('ADMIN'), clienteController.eliminarCliente);
+router.get('/:id', requerirPerfil('ADMIN', 'VENDEDOR', 'FACTURADOR'), clienteController.obtenerFichaCliente);
+router.put('/:id', requerirPerfil('ADMIN', 'VENDEDOR'), validarSchema(actualizarClienteSchema), clienteController.actualizarCliente);
+router.delete('/:id', requerirPerfil('ADMIN'), clienteController.eliminarCliente);
 router.post(
   '/:id/interacciones',
-  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR'),
   validarSchema(crearInteraccionSchema),
   clienteController.registrarInteraccion
 );
 router.post(
   '/:id/enviar-correo',
-  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR'),
   validarSchema(enviarCorreoClienteSchema),
   clienteController.enviarCorreoCliente
 );

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as oportunidadController from '../controllers/oportunidad.controller.js';
-import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
+import { autenticarToken, requerirPerfil } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
 import {
   crearOportunidadSchema,
@@ -12,22 +12,22 @@ const router = Router();
 
 router.use(autenticarToken);
 
-router.get('/', autorizarPerfiles('ADMIN', 'VENDEDOR'), oportunidadController.listar);
+router.get('/', requerirPerfil('ADMIN', 'VENDEDOR'), oportunidadController.listar);
 router.post(
   '/',
-  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR'),
   validarSchema(crearOportunidadSchema),
   oportunidadController.crear
 );
 router.patch(
   '/:id/etapa',
-  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR'),
   validarSchema(cambiarEtapaSchema),
   oportunidadController.cambiarEtapa
 );
 router.post(
   '/:id/senia',
-  autorizarPerfiles('ADMIN', 'VENDEDOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR'),
   validarSchema(registrarSeniaSchema),
   oportunidadController.registrarSenia
 );

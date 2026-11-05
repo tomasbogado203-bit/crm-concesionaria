@@ -50,12 +50,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   const registro = async (datosRegistro) => {
-    await apiFetch('/auth/registro', {
+    const tokenActual = localStorage.getItem('crm_token');
+
+    if (!tokenActual) {
+      throw new Error('El registro de usuarios requiere una sesión de Administrador.');
+    }
+
+    const payload = {
+      ...datosRegistro,
+      rol: 'VENDEDOR',
+    };
+
+    await apiFetch('/auth/usuarios', {
       method: 'POST',
-      body: JSON.stringify(datosRegistro),
+      headers: {
+        Authorization: `Bearer ${tokenActual}`,
+      },
+      body: JSON.stringify(payload),
     });
 
-    // Iniciar sesión automáticamente tras el registro exitoso
     return await login(datosRegistro.email, datosRegistro.password);
   };
 

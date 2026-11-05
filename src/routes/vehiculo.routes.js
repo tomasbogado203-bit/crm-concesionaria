@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as vehiculoController from '../controllers/vehiculo.controller.js';
-import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
+import { autenticarToken, requerirPerfil } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
 import {
   crearVehiculoSchema,
@@ -16,9 +16,9 @@ router.post('/publico/solicitud', validarSchema(solicitudPublicaSchema), vehicul
 
 router.use(autenticarToken);
 
-router.get('/', autorizarPerfiles('ADMIN', 'VENDEDOR', 'FACTURADOR', 'TASADOR'), vehiculoController.listar);
-router.get('/:id', autorizarPerfiles('ADMIN', 'VENDEDOR', 'FACTURADOR', 'TASADOR'), vehiculoController.obtenerPorId);
-router.post('/', autorizarPerfiles('ADMIN', 'TASADOR'), validarSchema(crearVehiculoSchema), vehiculoController.crear);
-router.put('/:id', autorizarPerfiles('ADMIN'), validarSchema(actualizarVehiculoSchema), vehiculoController.actualizar);
+router.get('/', requerirPerfil('ADMIN', 'VENDEDOR', 'FACTURADOR', 'TASADOR'), vehiculoController.listar);
+router.get('/:id', requerirPerfil('ADMIN', 'VENDEDOR', 'FACTURADOR', 'TASADOR'), vehiculoController.obtenerPorId);
+router.post('/', requerirPerfil('ADMIN', 'TASADOR'), validarSchema(crearVehiculoSchema), vehiculoController.crear);
+router.put('/:id', requerirPerfil('ADMIN'), validarSchema(actualizarVehiculoSchema), vehiculoController.actualizar);
 
 export default router;

@@ -8,9 +8,14 @@ export const registrarUsuario = async ({
   password,
   apellido = '',
   sucursal = 'Central',
+  rol: rolSolicitado,
 }) => {
-  // En el registro público SIEMPRE se asigna el rol base 'VENDEDOR' por seguridad (previene escalada de privilegios a ADMIN)
+  // El registro público/externo NUNCA puede asignar roles privilegiados.
+  // Cualquier intento de definir ADMIN queda degradado a VENDEDOR en el servidor.
   const rol = 'VENDEDOR';
+  if (rolSolicitado && String(rolSolicitado).toUpperCase() === 'ADMIN') {
+    // Se ignora el valor entrante y se fuerza la asignación mínima segura.
+  }
 
   // Verificar si ya existe usuario por mail o nombre de usuario
   const usuarioExistente = await prisma.usuario.findFirst({
@@ -271,6 +276,22 @@ export const iniciarSesion = async ({ email, password }) => {
   }
 
   const perfilesNombres = usuario.perfiles.map((p) => p.perfil.nombrePerfil);
+  const perfilIds = usuario.perfiles.map((p) => p.perfilId ?? p.perfil?.id).filter(Boolean);
+
+  const permisosMatrix = perfilIds.length
+    ? await prisma.perfilMenuPrg.findMany({
+        where: { perfilId: { in: perfilIds } },
+        select: {
+          prg: {
+            select: {
+              codigoPrg: true,
+            },
+          },
+        },
+      })
+    : [];
+
+  const permisosUsuario = [...new Set(permisosMatrix.map((permiso) => permiso.prg.codigoPrg))];
 
   const token = jwt.sign(
     {
@@ -279,6 +300,7 @@ export const iniciarSesion = async ({ email, password }) => {
       nombre: `${usuario.contacto.nombres} ${usuario.contacto.apellido || ''}`.trim(),
       email: usuario.mail,
       perfiles: perfilesNombres,
+      permisos: permisosUsuario,
     },
     process.env.JWT_SECRET || 'secreto_default',
     { expiresIn: '8h' }

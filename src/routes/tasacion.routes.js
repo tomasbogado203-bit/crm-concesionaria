@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import * as tasacionController from '../controllers/tasacion.controller.js';
-import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
+import { autenticarToken, requerirPerfil } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
 import {
   solicitarTasacionSchema,
@@ -12,22 +12,22 @@ const router = Router();
 
 router.use(autenticarToken);
 
-router.get('/', autorizarPerfiles('ADMIN', 'TASADOR', 'VENDEDOR'), tasacionController.listar);
+router.get('/', requerirPerfil('ADMIN', 'TASADOR', 'VENDEDOR'), tasacionController.listar);
 router.post(
   '/',
-  autorizarPerfiles('ADMIN', 'VENDEDOR', 'TASADOR'),
+  requerirPerfil('ADMIN', 'VENDEDOR', 'TASADOR'),
   validarSchema(solicitarTasacionSchema),
   tasacionController.solicitar
 );
 router.patch(
   '/:id/peritaje',
-  autorizarPerfiles('ADMIN', 'TASADOR'),
+  requerirPerfil('ADMIN', 'TASADOR'),
   validarSchema(peritarTasacionSchema),
   tasacionController.peritar
 );
 router.patch(
   '/:id/resolver',
-  autorizarPerfiles('ADMIN', 'TASADOR'),
+  requerirPerfil('ADMIN', 'TASADOR'),
   validarSchema(resolverTasacionSchema),
   tasacionController.resolver
 );

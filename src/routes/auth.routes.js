@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import * as authController from '../controllers/auth.controller.js';
-import { autenticarToken, autorizarPerfiles } from '../middlewares/auth.middleware.js';
+import { autenticarToken, requerirPerfil } from '../middlewares/auth.middleware.js';
 import { validarSchema } from '../middlewares/validate.middleware.js';
 import { loginSchema, crearUsuarioAdminSchema } from '../schemas/auth.schema.js';
 
@@ -33,14 +33,14 @@ router.get('/menu', autenticarToken, authController.miMenu);
 router.get(
   '/usuarios',
   autenticarToken,
-  autorizarPerfiles('ADMIN'),
+  requerirPerfil('ADMIN'),
   authController.listarUsuarios
 );
 
 router.post(
   '/usuarios',
   autenticarToken,
-  autorizarPerfiles('ADMIN'),
+  requerirPerfil('ADMIN'),
   validarSchema(crearUsuarioAdminSchema),
   authController.crearUsuarioPorAdmin
 );
@@ -48,7 +48,7 @@ router.post(
 router.patch(
   '/usuarios/:id/estado',
   autenticarToken,
-  autorizarPerfiles('ADMIN'),
+  requerirPerfil('ADMIN'),
   authController.cambiarEstadoUsuario
 );
 

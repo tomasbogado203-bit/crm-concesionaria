@@ -3,8 +3,19 @@ export default {
   transform: {},
   testMatch: ['**/tests/**/*.test.js'],
   collectCoverageFrom: [
-    'src/**/*.js',
-    '!src/server.js',
+    'src/app.js',
+    'src/config/*.js',
+    'src/middlewares/*.js',
+    'src/routes/*.js',
+    'src/schemas/*.js',
   ],
   coverageDirectory: 'coverage',
+  coverageThreshold: {
+    global: {
+      statements: 60,
+      branches: 60,
+      functions: 60,
+      lines: 60,
+    },
+  },
 };
