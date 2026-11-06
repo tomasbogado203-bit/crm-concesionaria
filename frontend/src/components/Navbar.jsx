@@ -48,10 +48,10 @@ export const Navbar = ({ titulo, onNavigate, onAbrirModoPublico }) => {
         .forEach((td) => {
           lista.push({
             id: `td-${td.id}`,
-            modulo: 'Pruebas de Manejo (Test Drives)',
+            modulo: 'Test Drive',
             icono: Clock,
             color: 'text-blue-600 bg-blue-50 border-blue-200',
-            titulo: 'Test Drive Programado',
+            titulo: 'Turno de Test Drive',
             detalle: `${td.cliente?.nombres} ${td.cliente?.apellido || ''} · ${td.vehiculo?.marca} ${td.vehiculo?.modelo}`,
             tiempo: new Date(td.fechaHora).toLocaleDateString('es-AR', {
               day: '2-digit',

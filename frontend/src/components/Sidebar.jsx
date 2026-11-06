@@ -19,7 +19,7 @@ const ICON_MAP = {
   Contactos: Users,
   'Ventas y Oportunidades': Target,
   'Catálogo de Vehículos': Car,
-  'Pruebas de Manejo (Test Drives)': Clock,
+  'Test Drive': Clock,
   'Tasaciones y Permutas': Wrench,
   'Facturación y Caja': Receipt,
   'Configuración y Seguridad': Settings,
@@ -33,7 +33,7 @@ const CATEGORIAS = [
   },
   {
     titulo: 'Customers',
-    modulos: ['Contactos', 'Pruebas de Manejo (Test Drives)', 'Tasaciones y Permutas'],
+    modulos: ['Contactos', 'Test Drive', 'Tasaciones y Permutas'],
   },
   {
     titulo: 'Management',
@@ -56,8 +56,8 @@ export const Sidebar = ({ vistaActiva, setVistaActiva }) => {
               <Car className="w-4 h-4" />
             </div>
             <div className="leading-tight">
-              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Agency</span>
-              <span className="text-xs font-bold text-gray-900 tracking-tight">Auto CRM Team</span>
+              <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">Dealer</span>
+              <span className="text-xs font-bold text-gray-900 tracking-tight">Milan Motors</span>
             </div>
           </div>
           <ChevronsUpDown className="w-3.5 h-3.5 text-gray-400" />

@@ -18,7 +18,7 @@ const MODULO_ALIASES = {
   'Catálogo e Inventario': 'Catálogo de Vehículos',
   'Padrón de Contactos': 'Contactos',
   'Facturación y Cobranzas': 'Facturación y Caja',
-  'Test Drives (Pruebas)': 'Pruebas de Manejo (Test Drives)',
+  'Test Drives (Pruebas)': 'Test Drive',
   'Tasaciones de Usados': 'Tasaciones y Permutas',
 };
 
@@ -125,7 +125,7 @@ const MainLayout = () => {
         return <OportunidadesView />;
       case 'Catálogo de Vehículos':
         return <VehiculosView onVerModoPublico={() => setModoPublico(true)} />;
-      case 'Pruebas de Manejo (Test Drives)':
+      case 'Test Drive':
         return <TestDrivesView />;
       case 'Tasaciones y Permutas':
         return <TasacionesView />;

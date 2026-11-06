@@ -41,9 +41,9 @@ export const DashboardView = ({ onNavigate }) => {
       icono: Receipt,
     },
     {
-      titulo: 'Pruebas de Manejo',
-      descripcion: 'Agenda de test drives, validación de licencias y feedback.',
-      modulo: 'Pruebas de Manejo (Test Drives)',
+      titulo: 'Test Drive',
+      descripcion: 'Agenda de demostraciones, validación de licencias y coordinación comercial.',
+      modulo: 'Test Drive',
       icono: Clock,
     },
     {

@@ -315,20 +315,19 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-black text-zinc-900 tracking-tight leading-none uppercase">
-                  Auto Concesionaria
+                  Milan Motors
                 </h1>
                 <span className="hidden sm:inline-block px-2 py-0.5 rounded-md bg-zinc-100 text-zinc-700 text-[10px] font-bold tracking-wider uppercase border border-zinc-200">
-                  Showroom Oficial
+                  Premium Showroom
                 </span>
               </div>
               <p className="text-xs text-zinc-500 font-normal mt-1">
-                Catálogo Digital de Unidades 0KM y Seminuevos Certificados
+                Catálogo oficial de vehículos 0KM y seminuevos certificados
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* WhatsApp Directo */}
             <a
               href="https://wa.me/5491123456789"
               target="_blank"
@@ -339,7 +338,6 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
               <span>WhatsApp Comercial</span>
             </a>
 
-            {/* Botón comparador en el header si hay vehículos seleccionados */}
             {vehiculosComparar.length > 0 && (
               <button
                 onClick={() => setMostrarModalComparador(true)}
@@ -350,7 +348,6 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
               </button>
             )}
 
-            {/* Resumen de Inventario en Header */}
             <div className="hidden lg:flex items-center gap-2 text-xs">
               <div className="px-3 py-1.5 bg-zinc-50 border border-zinc-200/80 rounded-xl flex items-center gap-2">
                 <span className="text-zinc-500 font-medium">Stock:</span>
@@ -362,7 +359,6 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
               </div>
             </div>
 
-            {/* Acceso CRM o Login */}
             {usuarioLogueado ? (
               <button
                 onClick={onVolverCRM}
@@ -388,11 +384,11 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
       <section className="border-b border-zinc-200/80 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,1),_rgba(244,244,245,0.96)_45%,_rgba(232,232,231,0.9))] pt-10 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center space-y-5">
           <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-zinc-950 tracking-[-0.04em] leading-[1.02]">
-            Encontrá tu próximo vehículo con respaldo oficial
+            Descubrí el vehículo que encaja con tu estilo de vida
           </h2>
 
           <p className="text-sm sm:text-base text-zinc-600 max-w-2xl mx-auto leading-relaxed font-normal">
-            Conocé nuestro catálogo exclusivo con precios actualizados, cálculo de cuotas en tiempo real, tasación online de tu usado y reserva inmediata de test drive.
+            Explora nuestro catálogo premium con financiamiento transparente, tasación online y coordinación comercial inmediata para tu próximo auto.
           </p>
 
           <div className="pt-2 max-w-3xl mx-auto">
@@ -402,7 +398,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
                 type="text"
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por marca, modelo, versión o palabra clave (ej. Taos, Hilux, Ranger, Corolla...)"
+                placeholder="Buscar por marca, modelo o versión"
                 className="w-full pl-12 pr-12 py-3.5 bg-white/90 border border-zinc-300 rounded-2xl text-sm text-zinc-900 placeholder:text-zinc-400 shadow-[0_12px_30px_rgba(28,25,23,0.04)] focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 transition"
               />
               {busqueda && (
