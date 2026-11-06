@@ -8,6 +8,7 @@ export const registrarUsuario = async ({
   password,
   apellido = '',
   sucursal = 'Central',
+  comisionPorcentaje = 0,
   rol: rolSolicitado,
 }) => {
   // El registro público/externo NUNCA puede asignar roles privilegiados.
@@ -57,6 +58,7 @@ export const registrarUsuario = async ({
         mail: email,
         password: hashedPassword,
         sucursal: sucursal,
+        comisionPorcentaje: Number(comisionPorcentaje || 0),
         snActivo: true,
         ...(perfilObj ? { perfiles: { create: { perfilId: perfilObj.id } } } : {}),
       },
@@ -66,6 +68,7 @@ export const registrarUsuario = async ({
         nombreUsuario: true,
         mail: true,
         sucursal: true,
+        comisionPorcentaje: true,
         contacto: {
           select: {
             id: true,
@@ -87,6 +90,7 @@ export const crearUsuarioPorAdmin = async ({
   email,
   password,
   sucursal = 'Central',
+  comisionPorcentaje = 0,
   rol = 'VENDEDOR',
 }) => {
   const usuarioExistente = await prisma.usuario.findFirst({
@@ -126,6 +130,7 @@ export const crearUsuarioPorAdmin = async ({
         mail: email,
         password: hashedPassword,
         sucursal: sucursal,
+        comisionPorcentaje: Number(comisionPorcentaje || 0),
         snActivo: true,
         ...(perfilObj ? { perfiles: { create: { perfilId: perfilObj.id } } } : {}),
       },
@@ -135,6 +140,7 @@ export const crearUsuarioPorAdmin = async ({
         nombreUsuario: true,
         mail: true,
         sucursal: true,
+        comisionPorcentaje: true,
         contacto: {
           select: {
             id: true,
@@ -152,6 +158,7 @@ export const crearUsuarioPorAdmin = async ({
       nombreUsuario: nuevoUsuario.nombreUsuario,
       mail: nuevoUsuario.mail,
       sucursal: nuevoUsuario.sucursal,
+      comisionPorcentaje: nuevoUsuario.comisionPorcentaje ? Number(nuevoUsuario.comisionPorcentaje) : 0,
       snActivo: true,
       contacto: nuevoUsuario.contacto,
       perfiles: [rol],
@@ -184,6 +191,7 @@ export const listarUsuarios = async () => {
       nombreUsuario: u.nombreUsuario,
       mail: u.mail,
       sucursal: u.sucursal || 'Central',
+      comisionPorcentaje: u.comisionPorcentaje ? Number(u.comisionPorcentaje) : 0,
       snActivo: u.snActivo,
       createdAt: u.createdAt,
       contacto: u.contacto
@@ -240,6 +248,7 @@ export const cambiarEstadoUsuario = async (usuarioId, { snActivo } = {}, adminId
     nombreUsuario: actualizado.nombreUsuario,
     mail: actualizado.mail,
     sucursal: actualizado.sucursal,
+    comisionPorcentaje: actualizado.comisionPorcentaje ? Number(actualizado.comisionPorcentaje) : 0,
     snActivo: actualizado.snActivo,
     perfiles: roles,
     rol: roles.length > 0 ? roles[0] : 'VENDEDOR',
@@ -315,6 +324,7 @@ export const iniciarSesion = async ({ email, password }) => {
       nombreCompleto: `${usuario.contacto.nombres} ${usuario.contacto.apellido || ''}`.trim(),
       email: usuario.mail,
       sucursal: usuario.sucursal,
+      comisionPorcentaje: usuario.comisionPorcentaje ? Number(usuario.comisionPorcentaje) : 0,
       perfiles: perfilesNombres,
     },
   };

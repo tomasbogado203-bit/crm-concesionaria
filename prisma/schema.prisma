@@ -115,16 +115,17 @@ model Contacto {
 
 
 model Usuario {
-  id              Int              @id @default(autoincrement())
-  contactoId      Int              @unique @map("id_contacto")
-  contacto        Contacto         @relation(fields: [contactoId], references: [id])
-  nombreUsuario   String           @unique @map("nombre_usuario")
-  mail            String           @unique
-  password        String           @map("contrasena")
-  sucursal        String?          @map("suc")
-  snActivo        Boolean          @default(true) @map("sn_activo")
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt @map("updated_at")
+  id                  Int              @id @default(autoincrement())
+  contactoId          Int              @unique @map("id_contacto")
+  contacto            Contacto         @relation(fields: [contactoId], references: [id])
+  nombreUsuario       String           @unique @map("nombre_usuario")
+  mail                String           @unique
+  password            String           @map("contrasena")
+  sucursal            String?          @map("suc")
+  comisionPorcentaje  Decimal?         @db.Decimal(5, 2) @map("comision_porcentaje")
+  snActivo            Boolean          @default(true) @map("sn_activo")
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt @map("updated_at")
 
   // Seguridad: Perfiles asignados al usuario (Vendedor, Facturador, etc.)
   perfiles        PerfilUsuario[]
@@ -303,20 +304,22 @@ model TransicionEtapa {
 // ==========================================
 
 model Factura {
-  id                Int             @id @default(autoincrement())
-  oportunidadId     Int?            @map("id_oportunidad")
-  oportunidad       Oportunidad?    @relation(fields: [oportunidadId], references: [id])
-  clienteId         Int             @map("id_contacto")
-  cliente           Contacto        @relation(fields: [clienteId], references: [id])
-  usuarioId         Int             @map("id_usuario")
-  usuario           Usuario         @relation(fields: [usuarioId], references: [id])
-  tipoComprobante   TipoComprobante @default(FACTURA_B) @map("tipo_comprobante")
-  puntoVenta        String          @map("punto_venta")
-  numeroComprobante String          @map("numero_comprobante")
-  caeAfip           String?         @map("cae_afip")
-  fechaEmision      DateTime        @default(now()) @map("fecha_emision")
-  total             Decimal         @db.Decimal(12, 2)
-  estado            EstadoFactura   @default(EMITIDA)
+  id                  Int             @id @default(autoincrement())
+  oportunidadId       Int?            @map("id_oportunidad")
+  oportunidad         Oportunidad?    @relation(fields: [oportunidadId], references: [id])
+  clienteId           Int             @map("id_contacto")
+  cliente             Contacto        @relation(fields: [clienteId], references: [id])
+  usuarioId           Int             @map("id_usuario")
+  usuario             Usuario         @relation(fields: [usuarioId], references: [id])
+  tipoComprobante     TipoComprobante @default(FACTURA_B) @map("tipo_comprobante")
+  puntoVenta          String          @map("punto_venta")
+  numeroComprobante   String          @map("numero_comprobante")
+  caeAfip             String?         @map("cae_afip")
+  fechaEmision        DateTime        @default(now()) @map("fecha_emision")
+  total               Decimal         @db.Decimal(12, 2)
+  comisionPorcentaje  Decimal?        @db.Decimal(5, 2) @map("comision_porcentaje")
+  comisionMonto       Decimal?        @db.Decimal(12, 2) @map("comision_monto")
+  estado              EstadoFactura   @default(EMITIDA)
 
   detalles          DetalleFactura[]
   pagos             PagoCobro[]

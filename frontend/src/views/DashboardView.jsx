@@ -80,6 +80,7 @@ export const DashboardView = ({ onNavigate }) => {
     const vehiculos = datos.vehiculos || [];
     const testDrives = datos.testDrives || [];
     const tasaciones = datos.tasaciones || [];
+    const facturas = datos.facturas || [];
 
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -140,15 +141,27 @@ export const DashboardView = ({ onNavigate }) => {
       { key: 'GANADA', label: 'Ganadas', value: oportunidades.filter((op) => op.etapa === 'GANADA').length },
     ];
 
+    const comisionesMes = facturas.filter((factura) => {
+      const fecha = parseDate(factura.fechaEmision || factura.createdAt);
+      if (!fecha) return false;
+      return fecha >= currentMonthStart;
+    }).reduce((sum, factura) => {
+      const comision = Number(factura.comisionMonto ?? 0);
+      const porcentaje = Number(factura.comisionPorcentaje ?? factura.usuario?.comisionPorcentaje ?? 0);
+      if (comision > 0) return sum + comision;
+      return sum + Number(factura.total || 0) * (porcentaje / 100);
+    }, 0);
+
     const rankingVendedores = Object.values(
-      oportunidadesActivas.reduce((acc, op) => {
-        const nombre = op.usuario?.nombreCompleto || op.usuario?.nombre || `Vendedor ${op.usuarioId || 'Sin asignar'}`;
-        if (!acc[nombre]) acc[nombre] = { nombre, valor: 0, cantidad: 0 };
-        acc[nombre].valor += Number(op.montoEstimado || 0);
+      facturas.reduce((acc, factura) => {
+        const nombre = factura.usuario?.nombreCompleto || factura.usuario?.nombreUsuario || `Vendedor ${factura.usuarioId || 'Sin asignar'}`;
+        if (!acc[nombre]) acc[nombre] = { nombre, valor: 0, cantidad: 0, comisiones: 0 };
+        acc[nombre].valor += Number(factura.total || 0);
         acc[nombre].cantidad += 1;
+        acc[nombre].comisiones += Number(factura.comisionMonto ?? (Number(factura.total || 0) * (Number(factura.comisionPorcentaje ?? 0) / 100)));
         return acc;
       }, {})
-    ).sort((a, b) => b.valor - a.valor)
+    ).sort((a, b) => b.comisiones - a.comisiones)
       .slice(0, 5);
 
     const ventasPorMes = Array.from({ length: 6 }, (_, index) => {
@@ -180,6 +193,7 @@ export const DashboardView = ({ onNavigate }) => {
       stockUsados,
       promedioDiasStock,
       facturasPendientes,
+      comisionesMes,
       embedding,
       rankingVendedores,
       ventasPorMes,
@@ -218,6 +232,13 @@ export const DashboardView = ({ onNavigate }) => {
       delta: `${resumen.stock0km} 0KM · ${resumen.stockUsados} usados`,
       tone: 'amber',
       icon: Warehouse,
+    },
+    {
+      title: 'Comisiones del mes',
+      value: formatMoney(resumen.comisionesMes),
+      delta: `${resumen.rankingVendedores.length} vendedores activos`,
+      tone: 'rose',
+      icon: BadgeDollarSign,
     },
     {
       title: 'Cobranzas pendientes',

@@ -216,6 +216,13 @@ async function main() {
     where: { mail: 'carlos@concesionaria.com' },
   });
 
+  if (usuarioCarlos) {
+    await prisma.usuario.update({
+      where: { id: usuarioCarlos.id },
+      data: { comisionPorcentaje: 5 },
+    });
+  }
+
   if (usuarioCarlos && perfilesMap['VENDEDOR']) {
     await prisma.perfilUsuario.upsert({
       where: {
@@ -257,6 +264,7 @@ async function main() {
         mail: 'admin@concesionaria.com',
         password: '$2a$10$eO0V4L5J0O7eH1e9K8mOqO.e7w6o7Zz1H7s7L9a8A9B0C1D2E3F4G', // Password123
         sucursal: 'Casa Central',
+        comisionPorcentaje: 0,
         snActivo: true,
       },
     });

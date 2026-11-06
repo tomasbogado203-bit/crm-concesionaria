@@ -1,5 +1,11 @@
 import prisma from '../config/prisma.js';
 
+export const calcularComisionFactura = (total, porcentaje) => {
+  const totalNumber = Number(total || 0);
+  const porcentajeNumber = Number(porcentaje || 0);
+  return Number((totalNumber * (porcentajeNumber / 100)).toFixed(2));
+};
+
 const accesoFacturaUsuario = (usuarioId) => ({
   OR: [
     { usuarioId: Number(usuarioId) },
@@ -38,6 +44,7 @@ export const listarFacturas = async (usuarioId, esAdmin = false) => {
         select: {
           id: true,
           nombreUsuario: true,
+          comisionPorcentaje: true,
         },
       },
       detalles: {
@@ -85,6 +92,7 @@ export const obtenerFacturaPorId = async (id, usuarioId = null, esAdmin = false)
         select: {
           id: true,
           nombreUsuario: true,
+          comisionPorcentaje: true,
         },
       },
       detalles: {
@@ -106,9 +114,11 @@ export const obtenerFacturaPorId = async (id, usuarioId = null, esAdmin = false)
 
   const totalPagado = factura.pagos.reduce((acc, p) => acc + Number(p.monto), 0);
   const saldoPendiente = Math.max(0, Number(factura.total) - totalPagado);
+  const comisionMonto = factura.comisionMonto ?? calcularComisionFactura(factura.total, factura.comisionPorcentaje ?? factura.usuario?.comisionPorcentaje ?? 0);
 
   return {
     ...factura,
+    comisionMonto,
     totalPagado,
     saldoPendiente,
   };
@@ -148,6 +158,12 @@ export const emitirFactura = async (datos, usuarioId) => {
   });
 
   const total = detallesCalculados.reduce((acc, it) => acc + it.subtotal, 0);
+  const vendedor = await prisma.usuario.findUnique({
+    where: { id: Number(usuarioId) },
+    select: { id: true, comisionPorcentaje: true },
+  });
+  const comisionPorcentaje = Number(datos.comisionPorcentaje ?? vendedor?.comisionPorcentaje ?? 0);
+  const comisionMonto = calcularComisionFactura(total, comisionPorcentaje);
 
   // 5. Transacción atómica de emisión fiscal y actualización de stock
   return await prisma.$transaction(async (tx) => {
@@ -173,6 +189,8 @@ export const emitirFactura = async (datos, usuarioId) => {
         numeroComprobante: siguienteNro,
         caeAfip: caeSimulado,
         total,
+        comisionPorcentaje,
+        comisionMonto,
         estado: 'EMITIDA',
         detalles: {
           create: detallesCalculados,

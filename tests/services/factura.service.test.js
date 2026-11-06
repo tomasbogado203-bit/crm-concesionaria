@@ -14,6 +14,7 @@ const mockPrisma = {
   oportunidad: { findUnique: jest.fn(), update: jest.fn() },
   transicionEtapa: { create: jest.fn() },
   pagoCobro: { create: jest.fn() },
+  usuario: { findUnique: jest.fn() },
 };
 
 jest.unstable_mockModule('../../src/config/prisma.js', () => ({
@@ -80,6 +81,42 @@ describe('Factura Service - Emisión Fiscal, CAE, Cobranzas y Transaccionalidad'
         data: { estado: 'VENDIDO' },
       });
       expect(mockPrisma.$transaction).toHaveBeenCalled();
+    });
+  });
+
+  describe('comisiones de vendedor', () => {
+    it('debe calcular la comisión sobre el total de la factura emitida y guardar el monto', async () => {
+      mockPrisma.contacto.findFirst.mockResolvedValue({ id: 1, snActivo: true });
+      mockPrisma.usuario.findUnique.mockResolvedValue({ id: 1, comisionPorcentaje: 5 });
+      mockPrisma.factura.count.mockResolvedValue(10);
+      mockPrisma.vehiculo.findUnique.mockResolvedValue({ id: 2, estado: 'DISPONIBLE' });
+      mockPrisma.vehiculo.update.mockResolvedValue({});
+      mockPrisma.factura.create.mockResolvedValue({
+        id: 100,
+        total: 100000,
+        comisionPorcentaje: 5,
+        comisionMonto: 5000,
+      });
+
+      const res = await emitirFactura(
+        {
+          clienteId: 1,
+          items: [{ vehiculoId: 2, descripcion: 'Auto 0km', precioUnitario: 100000 }],
+          comisionPorcentaje: 5,
+        },
+        1
+      );
+
+      expect(res.comisionMonto).toBe(5000);
+      expect(res.comisionPorcentaje).toBe(5);
+      expect(mockPrisma.factura.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            comisionPorcentaje: 5,
+            comisionMonto: 5000,
+          }),
+        })
+      );
     });
   });
 
