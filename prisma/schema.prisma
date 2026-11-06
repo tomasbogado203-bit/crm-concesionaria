@@ -226,20 +226,25 @@ model PerfilMenuPrg {
 // ==========================================
 
 model Vehiculo {
-  id              Int               @id @default(autoincrement())
-  vin             String            @unique
-  marca           String
-  modelo          String
-  version         String
-  anio            Int
-  condicion       CondicionVehiculo @default(CERO_KM)
-  kilometraje     Int               @default(0)
-  precioVenta     Decimal           @db.Decimal(12, 2) @map("precio_venta")
-  costoCompra     Decimal?          @db.Decimal(12, 2) @map("costo_compra")
-  estado          EstadoVehiculo    @default(DISPONIBLE)
-  imagenUrl       String?           @db.Text @map("imagen_url")
-  createdAt       DateTime          @default(now()) @map("created_at")
-  updatedAt       DateTime          @updatedAt @map("updated_at")
+  id                         Int               @id @default(autoincrement())
+  vin                        String            @unique
+  marca                      String
+  modelo                     String
+  version                    String
+  anio                       Int
+  condicion                  CondicionVehiculo @default(CERO_KM)
+  kilometraje                Int               @default(0)
+  precioVenta                Decimal           @db.Decimal(12, 2) @map("precio_venta")
+  costoCompra                Decimal?          @db.Decimal(12, 2) @map("costo_compra")
+  costoReacondicionamiento   Decimal?          @db.Decimal(12, 2) @map("costo_reacondicionamiento")
+  fechaIngresoStock          DateTime?         @map("fecha_ingreso_stock")
+  consignado                 Boolean           @default(false)
+  consignacionPorcentaje     Decimal?          @db.Decimal(5, 2) @map("consignacion_porcentaje")
+  consignacionMonto          Decimal?          @db.Decimal(12, 2) @map("consignacion_monto")
+  estado                     EstadoVehiculo    @default(DISPONIBLE)
+  imagenUrl                  String?           @db.Text @map("imagen_url")
+  createdAt                  DateTime          @default(now()) @map("created_at")
+  updatedAt                  DateTime          @updatedAt @map("updated_at")
 
   oportunidades   Oportunidad[]
   detallesFactura DetalleFactura[]

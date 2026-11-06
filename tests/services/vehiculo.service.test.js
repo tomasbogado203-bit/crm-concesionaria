@@ -73,6 +73,27 @@ describe('Vehiculo Service - Catálogo y Control de Precios/Stock', () => {
         })
       );
     });
+
+    it('incluye costos de reacondicionamiento, stock y consignación en el select', async () => {
+      mockPrisma.vehiculo.findMany.mockResolvedValue([
+        { id: 2, marca: 'Ford', precioVenta: 1500 },
+      ]);
+
+      await listarVehiculos({}, true);
+
+      expect(mockPrisma.vehiculo.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          select: expect.objectContaining({
+            costoCompra: true,
+            costoReacondicionamiento: true,
+            fechaIngresoStock: true,
+            consignado: true,
+            consignacionPorcentaje: true,
+            consignacionMonto: true,
+          }),
+        })
+      );
+    });
   });
 
   describe('crearVehiculo', () => {

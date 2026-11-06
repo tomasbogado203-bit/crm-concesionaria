@@ -9,7 +9,12 @@ export const crearVehiculoSchema = z.object({
   condicion: z.enum(['CERO_KM', 'USADO']).default('CERO_KM'),
   kilometraje: z.number().int().nonnegative().optional().default(0),
   precioVenta: z.number().positive('El precio de venta debe ser positivo'),
-  costoCompra: z.number().positive().optional(),
+  costoCompra: z.number().nonnegative().optional(),
+  costoReacondicionamiento: z.number().nonnegative().optional(),
+  fechaIngresoStock: z.coerce.date().optional().nullable(),
+  consignado: z.boolean().optional().default(false),
+  consignacionPorcentaje: z.number().min(0).max(100).optional(),
+  consignacionMonto: z.number().nonnegative().optional(),
   estado: z.enum(['DISPONIBLE', 'RESERVADO', 'VENDIDO']).default('DISPONIBLE'),
   imagenUrl: z.string().optional().nullable().or(z.literal('')),
 });

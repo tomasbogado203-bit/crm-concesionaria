@@ -137,6 +137,11 @@ export const listarVehiculos = async (filtros = {}, verCostos = false) => {
     kilometraje: true,
     precioVenta: true,
     costoCompra: verCostos,
+    costoReacondicionamiento: verCostos,
+    fechaIngresoStock: verCostos,
+    consignado: verCostos,
+    consignacionPorcentaje: verCostos,
+    consignacionMonto: verCostos,
     imagenUrl: true,
     estado: true,
     createdAt: true,
@@ -199,6 +204,11 @@ export const obtenerVehiculoPorId = async (id, verCostos = false) => {
       kilometraje: true,
       precioVenta: true,
       costoCompra: verCostos,
+      costoReacondicionamiento: verCostos,
+      fechaIngresoStock: verCostos,
+      consignado: verCostos,
+      consignacionPorcentaje: verCostos,
+      consignacionMonto: verCostos,
       imagenUrl: true,
       estado: true,
       createdAt: true,
@@ -226,17 +236,37 @@ export const crearVehiculo = async (datos) => {
     throw error;
   }
 
+  const payload = {
+    ...datos,
+    fechaIngresoStock: datos.fechaIngresoStock ? new Date(datos.fechaIngresoStock) : new Date(),
+    consignado: Boolean(datos.consignado),
+  };
+
+  if (payload.consignado && !payload.consignacionMonto && payload.consignacionPorcentaje) {
+    payload.consignacionMonto = Number(payload.precioVenta) * (Number(payload.consignacionPorcentaje) / 100);
+  }
+
   return await prisma.vehiculo.create({
-    data: datos,
+    data: payload,
   });
 };
 
 export const actualizarVehiculo = async (id, datos) => {
   await obtenerVehiculoPorId(id, true);
 
+  const payload = { ...datos };
+
+  if (payload.fechaIngresoStock) {
+    payload.fechaIngresoStock = new Date(payload.fechaIngresoStock);
+  }
+
+  if (payload.consignado && !payload.consignacionMonto && payload.consignacionPorcentaje) {
+    payload.consignacionMonto = Number(payload.precioVenta || 0) * (Number(payload.consignacionPorcentaje) / 100);
+  }
+
   return await prisma.vehiculo.update({
     where: { id: Number(id) },
-    data: datos,
+    data: payload,
   });
 };
 

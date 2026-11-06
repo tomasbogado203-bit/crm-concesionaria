@@ -18,6 +18,29 @@ import {
 import { exportToCSV } from '../utils/exportCsv';
 import { SimuladorFinancieroModal } from '../components/SimuladorFinancieroModal';
 
+const formatearMonto = (valor) => Number(valor || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 });
+
+const calcularCostoTotalUnidad = (vehiculo) => {
+  const costoCompra = Number(vehiculo?.costoCompra || 0);
+  const costoReacondicionamiento = Number(vehiculo?.costoReacondicionamiento || 0);
+  const costoConsignacion = Number(vehiculo?.consignacionMonto || 0);
+  return costoCompra + costoReacondicionamiento + costoConsignacion;
+};
+
+const calcularMargenBruto = (vehiculo) => {
+  const precioVenta = Number(vehiculo?.precioVenta || 0);
+  return precioVenta - calcularCostoTotalUnidad(vehiculo);
+};
+
+const calcularDiasEnStock = (vehiculo) => {
+  const fechaBase = vehiculo?.fechaIngresoStock || vehiculo?.createdAt;
+  if (!fechaBase) return 0;
+  const fecha = new Date(fechaBase);
+  if (Number.isNaN(fecha.getTime())) return 0;
+  const diffMs = Date.now() - fecha.getTime();
+  return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+};
+
 const FOTOS_PRESET = [
   { nombre: 'SUV', url: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80' },
   { nombre: 'Pick-up', url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1200&q=80' },
@@ -43,6 +66,11 @@ export const VehiculosView = ({ onVerModoPublico }) => {
   const [kilometraje, setKilometraje] = useState(0);
   const [precioVenta, setPrecioVenta] = useState('');
   const [costoCompra, setCostoCompra] = useState('');
+  const [costoReacondicionamiento, setCostoReacondicionamiento] = useState('');
+  const [fechaIngresoStock, setFechaIngresoStock] = useState('');
+  const [consignado, setConsignado] = useState(false);
+  const [consignacionPorcentaje, setConsignacionPorcentaje] = useState('15');
+  const [consignacionMonto, setConsignacionMonto] = useState('');
   const [imagenUrl, setImagenUrl] = useState('');
   const [guardando, setGuardando] = useState(false);
 
@@ -78,6 +106,11 @@ export const VehiculosView = ({ onVerModoPublico }) => {
           kilometraje: Number(kilometraje),
           precioVenta: Number(precioVenta),
           costoCompra: costoCompra ? Number(costoCompra) : undefined,
+          costoReacondicionamiento: costoReacondicionamiento ? Number(costoReacondicionamiento) : undefined,
+          fechaIngresoStock: fechaIngresoStock || new Date().toISOString(),
+          consignado: Boolean(consignado && condicion === 'USADO'),
+          consignacionPorcentaje: consignado && condicion === 'USADO' ? Number(consignacionPorcentaje || 0) : undefined,
+          consignacionMonto: consignado && condicion === 'USADO' && consignacionMonto ? Number(consignacionMonto) : undefined,
           imagenUrl: imagenUrl.trim() || undefined,
           estado: 'DISPONIBLE',
         }),
@@ -90,6 +123,11 @@ export const VehiculosView = ({ onVerModoPublico }) => {
       setVersion('');
       setPrecioVenta('');
       setCostoCompra('');
+      setCostoReacondicionamiento('');
+      setFechaIngresoStock('');
+      setConsignado(false);
+      setConsignacionPorcentaje('15');
+      setConsignacionMonto('');
       setImagenUrl('');
       cargarVehiculos();
     } catch (err) {
@@ -116,6 +154,11 @@ export const VehiculosView = ({ onVerModoPublico }) => {
       Kilometraje: v.kilometraje,
       Precio_Venta: v.precioVenta,
       Costo_Compra: v.costoCompra || 0,
+      Costo_Reacondicionamiento: v.costoReacondicionamiento || 0,
+      Dias_En_Stock: calcularDiasEnStock(v),
+      Consignado: v.consignado ? 'Sí' : 'No',
+      Consignacion_Monto: v.consignacionMonto || 0,
+      Margen_Bruto: calcularMargenBruto(v),
       Estado: v.estado,
     }));
     exportToCSV('inventario_vehiculos', data);
@@ -187,95 +230,125 @@ export const VehiculosView = ({ onVerModoPublico }) => {
             No hay vehículos que coincidan con el filtro seleccionado.
           </div>
         ) : (
-          vehiculosFiltrados.map((v) => (
-            <div
-              key={v.id}
-              className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-gray-300 transition flex flex-col justify-between group"
-            >
-              <div>
-                {/* Imagen del Vehículo */}
-                <div className="relative aspect-16/9 bg-gray-100 overflow-hidden">
-                  {v.imagenUrl ? (
-                    <img
-                      src={v.imagenUrl}
-                      alt={`${v.marca} ${v.modelo}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80';
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
-                      <Car className="w-10 h-10" />
-                      <span className="text-[10px] mt-1 font-medium">Sin imagen</span>
-                    </div>
-                  )}
+          vehiculosFiltrados.map((v) => {
+            const costoTotal = calcularCostoTotalUnidad(v);
+            const margenBruto = calcularMargenBruto(v);
+            const diasEnStock = calcularDiasEnStock(v);
 
-                  {/* Badges superiores sobre la imagen */}
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
-                      v.condicion === 'CERO_KM'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-blue-600 text-white'
-                    }`}>
-                      {v.condicion === 'CERO_KM' ? '0 KM' : `${v.kilometraje.toLocaleString()} KM`}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-2.5 right-2.5">
-                    <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
-                      v.estado === 'DISPONIBLE'
-                        ? 'bg-emerald-500/90 text-white'
-                        : v.estado === 'RESERVADO'
-                        ? 'bg-amber-500 text-white animate-pulse'
-                        : 'bg-gray-800 text-white'
-                    }`}>
-                      {v.estado}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-3">
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900 tracking-tight">{v.marca} {v.modelo}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">{v.version} · Año {v.anio}</p>
-                  </div>
-
-                  <div className="bg-gray-50/70 p-3 rounded-xl space-y-1.5 text-[11px] font-mono border border-gray-100">
-                    <div className="flex justify-between text-gray-500">
-                      <span>Chasis / VIN:</span>
-                      <span className="text-gray-800 font-semibold">{v.vin}</span>
-                    </div>
-                    {v.costoCompra && (
-                      <div className="flex justify-between text-indigo-600 font-medium">
-                        <span>Costo compra:</span>
-                        <span>${Number(v.costoCompra).toLocaleString('es-AR')}</span>
+            return (
+              <div
+                key={v.id}
+                className="bg-white border border-gray-200/80 rounded-2xl overflow-hidden shadow-xs hover:shadow-md hover:border-gray-300 transition flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="relative aspect-16/9 bg-gray-100 overflow-hidden">
+                    {v.imagenUrl ? (
+                      <img
+                        src={v.imagenUrl}
+                        alt={`${v.marca} ${v.modelo}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=1200&q=80';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 bg-gray-50">
+                        <Car className="w-10 h-10" />
+                        <span className="text-[10px] mt-1 font-medium">Sin imagen</span>
                       </div>
                     )}
+
+                    <div className="absolute top-2.5 left-2.5">
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
+                        v.condicion === 'CERO_KM'
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-blue-600 text-white'
+                      }`}>
+                        {v.condicion === 'CERO_KM' ? '0 KM' : `${v.kilometraje.toLocaleString()} KM`}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-2.5 right-2.5">
+                      <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-xs ${
+                        v.estado === 'DISPONIBLE'
+                          ? 'bg-emerald-500/90 text-white'
+                          : v.estado === 'RESERVADO'
+                          ? 'bg-amber-500 text-white animate-pulse'
+                          : 'bg-gray-800 text-white'
+                      }`}>
+                        {v.estado}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-5 space-y-3">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900 tracking-tight">{v.marca} {v.modelo}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">{v.version} · Año {v.anio}</p>
+                    </div>
+
+                    <div className="bg-gray-50/70 p-3 rounded-xl space-y-1.5 text-[11px] border border-gray-100">
+                      <div className="flex justify-between text-gray-500">
+                        <span>Chasis / VIN:</span>
+                        <span className="text-gray-800 font-semibold">{v.vin}</span>
+                      </div>
+                      {v.costoCompra && (
+                        <div className="flex justify-between text-indigo-600 font-medium">
+                          <span>Costo compra:</span>
+                          <span>${formatearMonto(v.costoCompra)}</span>
+                        </div>
+                      )}
+                      {v.costoReacondicionamiento && (
+                        <div className="flex justify-between text-amber-600 font-medium">
+                          <span>Reacondicionamiento:</span>
+                          <span>${formatearMonto(v.costoReacondicionamiento)}</span>
+                        </div>
+                      )}
+                      {v.consignado && (
+                        <div className="flex justify-between text-violet-600 font-medium">
+                          <span>Consignación:</span>
+                          <span>${formatearMonto(v.consignacionMonto || 0)}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-[10px]">
+                      <div className="bg-slate-50 border border-slate-200 rounded-lg p-2">
+                        <div className="text-slate-500 uppercase tracking-wide">Stock</div>
+                        <div className="mt-1 font-bold text-slate-900">{diasEnStock} días</div>
+                      </div>
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                        <div className="text-emerald-600 uppercase tracking-wide">Margen</div>
+                        <div className={`mt-1 font-bold ${margenBruto >= 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+                          ${formatearMonto(margenBruto)}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Precio de Lista</span>
-                  <span className="text-base font-extrabold text-gray-900">
-                    ${Number(v.precioVenta).toLocaleString('es-AR')}
-                  </span>
+                <div className="p-4 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-wider block font-semibold">Precio de Lista</span>
+                    <span className="text-base font-extrabold text-gray-900">${formatearMonto(v.precioVenta)}</span>
+                    <div className="text-[10px] text-gray-500 mt-1">
+                      Costo total: ${formatearMonto(costoTotal)}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setVehiculoSimular(v)}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                    title="Simular crédito prendario y cuotas"
+                  >
+                    <Calculator className="w-3.5 h-3.5 text-gray-500" />
+                    <span>Simular Cuotas</span>
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => setVehiculoSimular(v)}
-                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
-                  title="Simular crédito prendario y cuotas"
-                >
-                  <Calculator className="w-3.5 h-3.5 text-gray-500" />
-                  <span>Simular Cuotas</span>
-                </button>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
 
@@ -400,6 +473,66 @@ export const VehiculosView = ({ onVerModoPublico }) => {
                   />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Reacondicionamiento ($)</label>
+                  <input
+                    type="number"
+                    value={costoReacondicionamiento}
+                    onChange={(e) => setCostoReacondicionamiento(e.target.value)}
+                    placeholder="450000"
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Fecha ingreso stock</label>
+                  <input
+                    type="date"
+                    value={fechaIngresoStock}
+                    onChange={(e) => setFechaIngresoStock(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 px-1">
+                <input
+                  id="consignado-check"
+                  type="checkbox"
+                  checked={consignado}
+                  onChange={(e) => setConsignado(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                />
+                <label htmlFor="consignado-check" className="text-xs font-semibold text-gray-700">
+                  Consignado (usado)
+                </label>
+              </div>
+
+              {consignado && condicion === 'USADO' && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">% consignación</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={consignacionPorcentaje}
+                      onChange={(e) => setConsignacionPorcentaje(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">Monto consignación ($)</label>
+                    <input
+                      type="number"
+                      value={consignacionMonto}
+                      onChange={(e) => setConsignacionMonto(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl font-mono text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* Fotografía del Vehículo */}
               <div className="space-y-1.5 p-3 bg-gray-50/70 border border-gray-100 rounded-2xl">
