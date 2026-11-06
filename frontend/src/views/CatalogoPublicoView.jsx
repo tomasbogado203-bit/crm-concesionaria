@@ -5,7 +5,6 @@ import {
   MessageCircle,
   Calculator,
   Calendar,
-  Sparkles,
   ShieldCheck,
   CheckCircle2,
   ArrowRight,
@@ -388,11 +387,6 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
       {/* 3. Hero Section Profesional y Editorial */}
       <section className="bg-gradient-to-b from-white via-zinc-50/70 to-zinc-100/60 border-b border-zinc-200/80 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-100 border border-zinc-200/80 text-zinc-800 text-[11px] font-semibold tracking-wide">
-            <BadgeCheck className="w-3.5 h-3.5 text-zinc-700" />
-            <span>Vehículos Verificados · Peritaje Mecánico de 150 Puntos · Financiación Prendaria</span>
-          </div>
-
           <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-zinc-950 tracking-tight leading-tight">
             Encontrá tu próximo vehículo con respaldo oficial
           </h2>
