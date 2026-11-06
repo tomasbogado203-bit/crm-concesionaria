@@ -8,12 +8,32 @@ dotenv.config();
 
 const app = express();
 
-// Configuración de CORS estricta: permite únicamente el origen real del frontend
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+
+  return (
+    allowedOrigins.includes(origin) ||
+    /^https?:\/\/(localhost|127\.0\.0\.1):(?:5173|5174|4173)(?::\d+)?$/.test(origin)
+  );
+};
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173', // la URL real del frontend
-    credentials: true, // solo si mandás cookies o headers de autenticación
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origen no permitido por CORS: ${origin}`));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
