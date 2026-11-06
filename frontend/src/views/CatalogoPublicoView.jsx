@@ -385,9 +385,9 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
       </header>
 
       {/* 3. Hero Section Profesional y Editorial */}
-      <section className="bg-gradient-to-b from-white via-zinc-50/70 to-zinc-100/60 border-b border-zinc-200/80 pt-10 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center space-y-4">
-          <h2 className="text-3xl sm:text-4xl lg:text-[40px] font-black text-zinc-950 tracking-tight leading-tight">
+      <section className="border-b border-zinc-200/80 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,1),_rgba(244,244,245,0.96)_45%,_rgba(232,232,231,0.9))] pt-10 pb-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto text-center space-y-5">
+          <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-black text-zinc-950 tracking-[-0.04em] leading-[1.02]">
             Encontrá tu próximo vehículo con respaldo oficial
           </h2>
 
@@ -395,8 +395,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
             Conocé nuestro catálogo exclusivo con precios actualizados, cálculo de cuotas en tiempo real, tasación online de tu usado y reserva inmediata de test drive.
           </p>
 
-          {/* Barra de Búsqueda de Alta Gama */}
-          <div className="pt-3 max-w-2xl mx-auto">
+          <div className="pt-2 max-w-3xl mx-auto">
             <div className="relative">
               <Search className="w-5 h-5 text-zinc-400 absolute left-4 top-4" />
               <input
@@ -404,7 +403,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 placeholder="Buscar por marca, modelo, versión o palabra clave (ej. Taos, Hilux, Ranger, Corolla...)"
-                className="w-full pl-12 pr-10 py-3.5 bg-white border border-zinc-300 rounded-2xl text-sm text-zinc-900 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-900 focus:border-transparent transition"
+                className="w-full pl-12 pr-12 py-3.5 bg-white/90 border border-zinc-300 rounded-2xl text-sm text-zinc-900 placeholder:text-zinc-400 shadow-[0_12px_30px_rgba(28,25,23,0.04)] focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 transition"
               />
               {busqueda && (
                 <button
@@ -418,9 +417,8 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
             </div>
           </div>
 
-          {/* 3 Pilares de Confianza Automotriz */}
-          <div className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
-            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+          <div className="pt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
+            <div className="p-3 bg-white border border-zinc-200/80 rounded-2xl shadow-[0_10px_25px_rgba(24,24,27,0.03)] flex items-start gap-2.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-bold text-zinc-900">Peritaje Integral</p>
@@ -428,7 +426,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
               </div>
             </div>
 
-            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+            <div className="p-3 bg-white border border-zinc-200/80 rounded-2xl shadow-[0_10px_25px_rgba(24,24,27,0.03)] flex items-start gap-2.5">
               <Calculator className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-bold text-zinc-900">Financiación Flexible</p>
@@ -436,7 +434,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
               </div>
             </div>
 
-            <div className="p-3 bg-white/80 backdrop-blur-xs border border-zinc-200/70 rounded-2xl flex items-start gap-2.5">
+            <div className="p-3 bg-white border border-zinc-200/80 rounded-2xl shadow-[0_10px_25px_rgba(24,24,27,0.03)] flex items-start gap-2.5">
               <ArrowLeftRight className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-xs font-bold text-zinc-900">Tomamos tu Usado</p>
@@ -448,8 +446,7 @@ export const CatalogoPublicoView = ({ onVolverLogin, usuarioLogueado, onVolverCR
       </section>
 
       {/* Panel de Filtros Facetados Avanzados */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        {/* Fila 1: Filtros de Condición & Marcas Chips */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 w-full">
         <div className="space-y-4 pb-6 border-b border-gray-200/80">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             {/* Tabs de Condición */}
